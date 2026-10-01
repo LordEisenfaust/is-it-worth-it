@@ -39,7 +39,7 @@ export function Calculator({ wage, settingsInvalid, workdaysPerWeek }: Props) {
             type="text"
             inputMode="decimal"
             autoComplete="off"
-            placeholder="z. B. 600"
+            placeholder="z. B. 1599 für ein neues Handy"
             value={amountText}
             onChange={(e) => setAmountText(e.target.value)}
             aria-describedby="calc-status"
