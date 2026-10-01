@@ -1,0 +1,53 @@
+# Is it worth it?
+
+Eine kleine Web-App, die Einkäufe in Arbeitszeit umrechnet. Beispiel: Bei 600 € zeigt sie, wie viele Arbeitsstunden bzw. Arbeitstage das nach Abzug von Urlaub und Feiertagen ungefähr entspricht.
+
+## Funktionen
+
+- **Gehaltsdaten:** Jahres- oder Monatsnetto (bei Monatsnetto 12 bis 16 Gehälter), Wochenstunden, frei wählbare Arbeitstage, Urlaubstage und Bundesland für die Feiertage
+- **Rechner:** Betrag eingeben, das Ergebnis erscheint automatisch in Minuten, Stunden oder Arbeitstagen
+- **Verlauf:** die letzten 20 Berechnungen, optional mit Bezeichnung
+- **Dunkelmodus:** folgt dem System und lässt sich manuell umschalten
+- **Datenschutz:** ein Button löscht alle gespeicherten Daten
+
+## Datenschutz
+
+Es gibt kein Backend und keinen Login. Alle Eingaben werden ausschließlich im `localStorage` deines Browsers gespeichert (Schlüssel mit Präfix `iiwi:`) und nirgendwohin übertragen.
+
+## Berechnung
+
+```
+Jahresnetto     = Monatsnetto × Anzahl Monatsgehälter   (oder direkte Eingabe)
+Arbeitstage     = gewählte Wochentage im Jahr − Feiertage auf diesen Tagen − Urlaubstage
+Stunden pro Tag = Wochenstunden / Anzahl Arbeitstage pro Woche
+Stundenlohn     = Jahresnetto / (Arbeitstage × Stunden pro Tag)
+Arbeitszeit     = Betrag / Stundenlohn
+```
+
+Gerechnet wird mit dem aktuellen Kalenderjahr. Die Feiertage sind fest eingebaut, bewegliche Feiertage werden über die Osterformel von Meeus/Jones/Butcher berechnet. Berücksichtigt werden nur landesweite gesetzliche Feiertage; regionale Feiertage innerhalb eines Bundeslandes (z. B. Fronleichnam in Teilen Sachsens) und einmalige Feiertage fehlen.
+
+## Entwicklung
+
+Voraussetzung: Node.js und npm.
+
+```bash
+npm install
+npm run dev        # Entwicklungsserver
+npm test           # Unit-Tests (Vitest)
+npm run typecheck  # TypeScript-Prüfung
+npm run build      # statisches Build nach dist/
+```
+
+Das Build nutzt `base: "./"` und läuft dadurch auf jedem statischen Hosting, auch unter einem Unterpfad.
+
+Hinweis: Vite kommt mit Sonderzeichen wie `?` im Projektpfad nicht zurecht, der Projektordner sollte keine enthalten.
+
+## Aufbau
+
+- `src/lib/`: reine Berechnungslogik ohne React, mit Tests (Feiertage, Lohn, Formatierung, Validierung, Speicher)
+- `src/components/`: React-Komponenten der Oberfläche
+- `src/App.tsx`: Zustand und Zusammenspiel der Komponenten
+
+## Stand
+
+- Die Feiertagstabelle je Bundesland ist noch nicht stichprobenartig gegen eine verlässliche Quelle geprüft.
