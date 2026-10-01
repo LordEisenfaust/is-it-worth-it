@@ -16,32 +16,33 @@ describe("workTimeVerdict", () => {
     expect(v(0)?.headline).toBe("Nicht mal eine Minute. Gönn dir.");
   });
 
-  it("Stufe 2: unter einem Arbeitstag nachdenklich", () => {
-    const r = v(5.9);
-    expect(r?.level).toBe(2);
-    expect(r?.headline).toBe("5,9 Stunden Arbeit.");
-    expect(r?.comment).toBe("Ein Großteil deines Arbeitstags. Brauchst du das wirklich?");
-    expect(r?.detail).toBe("≈ 0,7 Arbeitstage");
+  it("Stufe 2: unter einem Arbeitstag nachdenklich, in Stunden und Minuten", () => {
+    expect(v(5.9)).toEqual({
+      level: 2,
+      headline: "5 Stunden und 54 Minuten Arbeit.",
+      comment: "Ein Großteil deines Arbeitstags. Brauchst du das wirklich?",
+      detail: "",
+    });
     expect(v(2)?.comment).toBe("Ein ordentliches Stück deines Arbeitstags. Brauchst du das wirklich?");
     expect(v(1)?.headline).toBe("1 Stunde Arbeit.");
   });
 
-  it("Stufe 3: ab einem Arbeitstag frech", () => {
-    const r = v(29.7);
-    expect(r).toEqual({
+  it("Stufe 3: ab einem Arbeitstag frech, in Tagen und Stunden", () => {
+    expect(v(29.7)).toEqual({
       level: 3,
-      headline: "3,7 Tage Schufterei.",
+      headline: "3 Tage und 6 Stunden Schufterei.",
       comment: "Schlaf lieber noch eine Nacht drüber.",
-      detail: "≈ 29,7 Arbeitsstunden",
+      detail: "≈ 29 Stunden und 42 Minuten",
     });
     expect(v(8)?.headline).toBe("1 Tag Schufterei.");
   });
 
-  it("Stufe 4: ab einer Arbeitswoche mit Wochenangabe", () => {
+  it("Stufe 4: ab einer Arbeitswoche mit Wochen und Tagen", () => {
     const r = v(99.2);
     expect(r?.level).toBe(4);
-    expect(r?.headline).toBe("12,4 Tage Arbeit. Ernsthaft?");
-    expect(r?.comment).toBe("2,5 Wochen deines Lebens. Das muss es dir wert sein.");
+    expect(r?.headline).toBe("12 Tage und 3 Stunden Arbeit. Ernsthaft?");
+    expect(r?.comment).toBe("2 Wochen und 2 Tage deines Lebens. Das muss es dir wert sein.");
+    expect(r?.detail).toBe("≈ 99 Stunden und 12 Minuten");
     expect(v(40)?.comment).toBe("1 Woche deines Lebens. Das muss es dir wert sein.");
   });
 

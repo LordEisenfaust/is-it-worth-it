@@ -5,7 +5,7 @@ Eine kleine Web-App, die Einkäufe in Arbeitszeit umrechnet. Beispiel: Bei 600 �
 ## Funktionen
 
 - **Einstellungen:** Gehaltsdaten (eigene Ansicht neben dem Rechner, beim ersten Start geöffnet): Jahres- oder Monatsnetto (bei Monatsnetto 12 bis 16 Gehälter), Wochenstunden, frei wählbare Arbeitstage, Urlaubstage und Bundesland für die Feiertage
-- **Rechner:** Betrag eingeben, das Ergebnis erscheint automatisch in Minuten, Stunden oder Arbeitstagen, mit einem frechen Kommentar, der mit dem Betrag schärfer wird
+- **Rechner:** Betrag eingeben, das Ergebnis erscheint automatisch in zwei Einheiten (z. B. „3 Stunden und 48 Minuten“ oder „6 Tage und 1 Stunde“), mit einem frechen Kommentar, der mit dem Betrag schärfer wird
 - **Dunkelmodus:** folgt dem System und lässt sich manuell umschalten
 - **Datenschutz:** ein Button löscht alle gespeicherten Daten
 
