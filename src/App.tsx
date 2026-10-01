@@ -5,7 +5,7 @@ import { SettingsForm } from "./components/SettingsForm";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { computeWage } from "./lib/calc";
 import { defaultDraft, sanitizeDraft, validateDraft, type SettingsDraft } from "./lib/settings";
-import { clearAll, KEYS, loadJson, PREFIX, saveJson } from "./lib/storage";
+import { clearAll, KEYS, loadJson, PREFIX, saveUnlessDefault } from "./lib/storage";
 import { sanitizeTheme, type ThemeChoice } from "./lib/theme";
 
 export function App() {
@@ -20,9 +20,9 @@ export function App() {
       // Storage unavailable.
     }
   }, []);
-  useEffect(() => void saveJson(KEYS.settings, draft), [draft]);
+  useEffect(() => void saveUnlessDefault(KEYS.settings, draft, defaultDraft), [draft]);
   useEffect(() => {
-    saveJson(KEYS.theme, theme);
+    saveUnlessDefault(KEYS.theme, theme, "system");
     const root = document.documentElement;
     if (theme === "system") root.removeAttribute("data-theme");
     else root.setAttribute("data-theme", theme);
