@@ -40,8 +40,6 @@ npm run build      # statisches Build nach dist/
 
 Das Build nutzt `base: "./"` und läuft dadurch auf jedem statischen Hosting, auch unter einem Unterpfad.
 
-Hinweis: Vite kommt mit Sonderzeichen wie `?` im Projektpfad nicht zurecht, der Projektordner sollte keine enthalten.
-
 ## Aufbau
 
 - `src/lib/`: reine Berechnungslogik ohne React, mit Tests (Feiertage, Lohn, Formatierung, Validierung, Speicher)
