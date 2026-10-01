@@ -4,7 +4,7 @@ interface Props {
 
 export function PrivacyPanel({ onDeleteAll }: Props) {
   function confirmAndDelete() {
-    if (window.confirm("Wirklich alle gespeicherten Daten (Gehaltsdaten, Verlauf, Darstellung) löschen?")) {
+    if (window.confirm("Wirklich alle gespeicherten Daten (Gehaltsdaten, Darstellung) löschen?")) {
       onDeleteAll();
     }
   }

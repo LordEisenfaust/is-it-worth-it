@@ -18,8 +18,8 @@ function fakeStore(initial: Record<string, string> = {}): KeyValueStore & { data
 describe("storage", () => {
   it("speichert und lädt JSON", () => {
     const store = fakeStore();
-    expect(saveJson(KEYS.history, [1, 2], store)).toBe(true);
-    expect(loadJson(KEYS.history, store)).toEqual([1, 2]);
+    expect(saveJson(KEYS.theme, [1, 2], store)).toBe(true);
+    expect(loadJson(KEYS.theme, store)).toEqual([1, 2]);
   });
 
   it("liefert undefined bei fehlendem oder kaputtem Wert", () => {
@@ -33,7 +33,7 @@ describe("storage", () => {
   });
 
   it("clearAll löscht nur Schlüssel mit dem Präfix iiwi:", () => {
-    const store = fakeStore({ [KEYS.settings]: "1", [KEYS.history]: "2", [KEYS.theme]: "3", other: "x" });
+    const store = fakeStore({ [KEYS.settings]: "1", [KEYS.theme]: "3", other: "x" });
     clearAll(store);
     expect([...store.data.keys()]).toEqual(["other"]);
   });

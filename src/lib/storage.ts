@@ -2,7 +2,6 @@ export const PREFIX = "iiwi:";
 
 export const KEYS = {
   settings: `${PREFIX}settings`,
-  history: `${PREFIX}history`,
   theme: `${PREFIX}theme`,
 } as const;
 
