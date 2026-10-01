@@ -113,8 +113,8 @@ export function App() {
             __APP_COMMIT__
           )}
           ) ·{" "}
-          <a href={REPO_URL} target="_blank" rel="noopener noreferrer" aria-label="Reinschauen erlaubt: Quellcode auf GitHub">
-            <GitHubIcon /> Reinschauen erlaubt
+          <a href={REPO_URL} target="_blank" rel="noopener noreferrer" aria-label="Quellcode auf GitHub" title="Quellcode auf GitHub">
+            <GitHubIcon />
           </a>
         </p>
       </div>

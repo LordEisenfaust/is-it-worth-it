@@ -44,7 +44,7 @@ Das Build nutzt `base: "./"` und läuft dadurch auf jedem statischen Hosting, au
 
 ### Versionierung
 
-Die App zeigt unten ihre Version und den Commit-Hash des Builds an, z. B. „Version 0.3.0 (540fcca)“. Der Hash wird bei jedem Build automatisch eingesetzt und verlinkt auf genau diesen Commit; daneben führt „Reinschauen erlaubt“ zum Repository. Die Versionsnummer kommt aus `package.json` und muss bei jeder Änderung an der App erhöht werden:
+Die App zeigt unten ihre Version und den Commit-Hash des Builds an, z. B. „Version 0.3.0 (540fcca)“. Der Hash wird bei jedem Build automatisch eingesetzt und verlinkt auf genau diesen Commit; daneben führt das GitHub-Logo zum Repository. Die Versionsnummer kommt aus `package.json` und muss bei jeder Änderung an der App erhöht werden:
 
 ```bash
 npm version patch --no-git-tag-version   # Fehlerbehebung: 0.2.0 → 0.2.1
