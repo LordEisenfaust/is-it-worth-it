@@ -55,7 +55,8 @@ export function workTimeVerdict(hours: number, hoursPerDay: number, workdaysPerW
   return {
     level: 4,
     headline: v.level4Headline(parts.text),
-    comment: v.level4Comment(formatWeeksDays(hours / hoursPerDay, workdaysPerWeek)),
+    // Same whole days as the headline, so both lines never contradict each other.
+    comment: v.level4Comment(formatWeeksDays(parts.days, workdaysPerWeek)),
     detail,
   };
 }
