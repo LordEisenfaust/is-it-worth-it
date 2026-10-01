@@ -1,6 +1,6 @@
 # Lohnt es? (Repository: is-it-worth-it)
 
-Name der App: „Lohnt es?“, Untertitel: „Der Rechner, den dein Warenkorb hasst.“ (früher „Is it worth it?“, dann „Lohnt sich's?“). Geplante Domain: `lohnt.es` (Name und Domain-Endung bilden zusammen den Titel).
+Name der App: „Lohnt es?“, Untertitel: „Der Rechner, den dein Warenkorb hasst.“ (früher „Is it worth it?“, dann „Lohnt sich's?“). Live unter https://lohnt.es (Name und Domain-Endung bilden zusammen den Titel; eigene Domain in GitHub → Settings → Pages eingetragen, die alte Adresse lordeisenfaust.github.io/is-it-worth-it leitet weiter).
 
 Web-Applikation, mit der man Einkäufe in Arbeitszeit verrechnen kann.
 Beispiel: Nutzer gibt 600 € ein, die App zeigt "Das entspricht ca. 4 Arbeitstagen" bzw. "32 Arbeitsstunden".

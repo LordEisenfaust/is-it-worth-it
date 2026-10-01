@@ -4,7 +4,7 @@ import type { Plugin } from "vite";
 import { de as t } from "../src/i18n/de";
 
 /** Public address of the live app. Link previews need absolute URLs; update this if the app moves. */
-export const SITE_URL = "https://lordeisenfaust.github.io/is-it-worth-it/";
+export const SITE_URL = "https://lohnt.es/";
 const BACKGROUND = "#f4f4f2";
 const THEME = "#f26b1d";
 
