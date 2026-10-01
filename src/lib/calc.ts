@@ -1,5 +1,5 @@
 import { countWeekdaysInYear } from "./dates";
-import { getHolidaysOnWorkdays, type Holiday } from "./holidays";
+import { getHolidays, type Holiday } from "./holidays";
 import { annualNet, type Settings } from "./settings";
 
 export interface WageInfo {
@@ -9,7 +9,10 @@ export interface WageInfo {
   workingDaysPerYear: number;
   hoursPerDay: number;
   hourlyWage: number;
+  /** Holidays on a chosen workday; these reduce the working days. */
   holidaysOnWorkdays: Holiday[];
+  /** Every statutory holiday of the state in the year, flagged by whether it falls on a chosen workday. */
+  allHolidays: (Holiday & { onWorkday: boolean })[];
 }
 
 export type WageResult = { ok: true; info: WageInfo } | { ok: false; error: string };
@@ -17,7 +20,11 @@ export type WageResult = { ok: true; info: WageInfo } | { ok: false; error: stri
 export function computeWage(settings: Settings, year: number): WageResult {
   if (settings.workdays.length === 0) return { ok: false, error: "Es ist kein Arbeitstag gewählt." };
 
-  const holidaysOnWorkdays = getHolidaysOnWorkdays(year, settings.state, settings.workdays);
+  const allHolidays = getHolidays(year, settings.state).map((h) => ({
+    ...h,
+    onWorkday: settings.workdays.includes(h.date.getUTCDay()),
+  }));
+  const holidaysOnWorkdays: Holiday[] = allHolidays.filter((h) => h.onWorkday).map(({ name, date }) => ({ name, date }));
   const workingDaysPerYear =
     countWeekdaysInYear(year, settings.workdays) - holidaysOnWorkdays.length - settings.vacationDays;
   if (workingDaysPerYear <= 0) {
@@ -33,7 +40,7 @@ export function computeWage(settings: Settings, year: number): WageResult {
 
   return {
     ok: true,
-    info: { year, annualNet: net, workingDaysPerYear, hoursPerDay, hourlyWage, holidaysOnWorkdays },
+    info: { year, annualNet: net, workingDaysPerYear, hoursPerDay, hourlyWage, holidaysOnWorkdays, allHolidays },
   };
 }
 

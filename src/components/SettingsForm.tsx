@@ -188,11 +188,14 @@ export function SettingsForm({ draft, errors, wage, onChange }: Props) {
             <dd>{formatEuro(info.hourlyWage)}</dd>
           </dl>
           <details>
-            <summary>Berücksichtigte Feiertage ({info.holidaysOnWorkdays.length})</summary>
-            <ul>
-              {info.holidaysOnWorkdays.map((h) => (
-                <li key={`${h.name}-${h.date.getTime()}`}>
+            <summary>
+              Feiertage ({info.allHolidays.length}, davon {info.holidaysOnWorkdays.length} abgezogen)
+            </summary>
+            <ul className="holidays">
+              {info.allHolidays.map((h) => (
+                <li key={`${h.name}-${h.date.getTime()}`} className={h.onWorkday ? undefined : "off-day"}>
                   {dateFormat.format(h.date)} – {h.name}
+                  {!h.onWorkday && <span className="note"> (laut Auswahl kein Arbeitstag, nicht abgezogen)</span>}
                 </li>
               ))}
             </ul>
