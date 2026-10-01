@@ -1,21 +1,24 @@
 import { useState } from "react";
 import { hoursForAmount, type WageResult } from "../lib/calc";
-import { formatEuro, formatWorkTime } from "../lib/format";
+import { formatEuro } from "../lib/format";
 import { parseAmount } from "../lib/parse";
+import { workTimeVerdict } from "../lib/verdict";
 
 interface Props {
   /** null while the settings are invalid. */
   wage: WageResult | null;
   settingsInvalid: boolean;
+  /** Number of chosen workdays per week (for the "weeks" wording). */
+  workdaysPerWeek: number;
 }
 
-export function Calculator({ wage, settingsInvalid }: Props) {
+export function Calculator({ wage, settingsInvalid, workdaysPerWeek }: Props) {
   const [amountText, setAmountText] = useState("");
 
   const amount = parseAmount(amountText);
   const info = wage?.ok ? wage.info : null;
   const hours = amount.ok && info ? hoursForAmount(amount.amount, info.hourlyWage) : NaN;
-  const display = info && Number.isFinite(hours) ? formatWorkTime(hours, info.hoursPerDay) : null;
+  const verdict = info && Number.isFinite(hours) ? workTimeVerdict(hours, info.hoursPerDay, workdaysPerWeek) : null;
 
   let hint: string | null = null;
   if (settingsInvalid) hint = "Bitte zuerst die Gehaltsdaten in den Einstellungen vollständig und gültig ausfüllen.";
@@ -41,13 +44,19 @@ export function Calculator({ wage, settingsInvalid }: Props) {
           />
         </div>
 
-        <div id="calc-status" className="result" aria-live="polite">
-          {display && amount.ok ? (
+        <div
+          id="calc-status"
+          className={verdict && amount.ok ? `result level-${verdict.level}` : "result"}
+          aria-live="polite"
+        >
+          {verdict && amount.ok ? (
             <>
-              <p className="result-primary">
-                {formatEuro(amount.amount)} entsprechen {display.primary}
+              <p className="result-primary">{verdict.headline}</p>
+              <p>{verdict.comment}</p>
+              <p className="muted">
+                {formatEuro(amount.amount)}
+                {verdict.detail && ` · ${verdict.detail}`}
               </p>
-              {display.secondary && <p className="muted">{display.secondary}</p>}
             </>
           ) : hint ? (
             <p className="error">{hint}</p>

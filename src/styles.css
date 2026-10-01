@@ -16,6 +16,7 @@
   --accent-strong: #a3440b;
   --error: #b42318;
   --danger: #b42318;
+  --warn: #c99700;
   --focus: #a3440b;
 }
 
@@ -36,6 +37,7 @@
     --accent-strong: #ff9a5c;
     --error: #ff8a80;
     --danger: #ff8a80;
+    --warn: #f2c94c;
     --focus: #ff9a5c;
   }
 }
@@ -56,6 +58,7 @@
   --accent-strong: #ff9a5c;
   --error: #ff8a80;
   --danger: #ff8a80;
+  --warn: #f2c94c;
   --focus: #ff9a5c;
 }
 
@@ -218,6 +221,23 @@ button.danger {
 .result-primary {
   font-size: 1.25rem;
   font-weight: 700;
+}
+
+/* The verdict box gets a coloured edge that escalates with the amount (decorative only; text colours stay). */
+.result.level-1 {
+  border-left: 6px solid var(--border);
+}
+
+.result.level-2 {
+  border-left: 6px solid var(--warn);
+}
+
+.result.level-3 {
+  border-left: 6px solid var(--accent);
+}
+
+.result.level-4 {
+  border-left: 6px solid var(--danger);
 }
 
 /* Segmented radio group */

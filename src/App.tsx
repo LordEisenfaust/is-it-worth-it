@@ -77,7 +77,11 @@ export function App() {
       <main>
         {/* Kept mounted (just hidden) so the entered amount survives a visit to the settings. */}
         <div hidden={view !== "calculator"}>
-          <Calculator wage={wage} settingsInvalid={validation.settings === null} />
+          <Calculator
+            wage={wage}
+            settingsInvalid={validation.settings === null}
+            workdaysPerWeek={validation.settings?.workdays.length ?? 0}
+          />
         </div>
         {view === "settings" && (
           <div id="settings-panel">
