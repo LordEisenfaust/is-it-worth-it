@@ -35,17 +35,21 @@ Aufwand: mittel, Abbildung auf Wochentage und Wochen muss programmiert werden.
 ## Vorschlag C: „Die Eskalation“ (umgesetzt)
 
 Der Ton steigert sich mit der Höhe des Betrags, von gelassen bis frech. Der Ergebniskasten bekommt
-je Stufe einen farbigen Rand (neutral, gelb, orange, rot). Darunter steht klein der Betrag und die
-genaue Umrechnung in die andere Einheit.
+je Stufe einen farbigen Rand (neutral, gelb, orange, rot). Darunter steht klein der Betrag.
 
 | Stufe | Grenze | Beispiel | Überschrift | Zeile darunter |
 |---|---|---|---|---|
 | 1 | unter 1 Stunde | 15 € | 45 Minuten. Gönn dir. | So schnell verdient, so schnell ausgegeben. |
-| 2 | unter 1 Arbeitstag | 120 € | 5,9 Stunden Arbeit. | Ein Großteil deines Arbeitstags. Brauchst du das wirklich? (unter einem halben Tag: „Ein ordentliches Stück deines Arbeitstags.“) |
-| 3 | unter 1 Arbeitswoche | 600 € | 3,7 Tage Schufterei. | Schlaf lieber noch eine Nacht drüber. |
-| 4 | ab 1 Arbeitswoche | 2000 € | 12,4 Tage Arbeit. Ernsthaft? | 2,5 Wochen deines Lebens. Das muss es dir wert sein. |
+| 2 | unter 1 Arbeitstag | 120 € | 5 Stunden und 54 Minuten Arbeit. | Ein Großteil deines Arbeitstags. Brauchst du das wirklich? (unter einem halben Tag: „Ein ordentliches Stück deines Arbeitstags.“) |
+| 3 | unter 1 Arbeitswoche | 600 € | 3 Tage und 6 Stunden Schufterei. | Schlaf lieber noch eine Nacht drüber. |
+| 4 | ab 1 Arbeitswoche | 2000 € | 12 Tage und 3 Stunden Arbeit. Ernsthaft? | 2 Wochen und 2 Tage deines Lebens. Das muss es dir wert sein. |
 
 Eine Arbeitswoche entspricht der Anzahl der gewählten Arbeitstage.
+
+Zeitangaben werden immer in höchstens zwei ganze Einheiten zerlegt: Minuten; Stunden und Minuten;
+Tage und Stunden; Wochen und Tage (z. B. 6,1 Tage → „6 Tage und 1 Stunde“, 3,8 Stunden →
+„3 Stunden und 48 Minuten“). Ab Stufe 3 steht klein darunter die genaue Arbeitszeit
+(„≈ 29 Stunden und 42 Minuten“).
 
 Mögliche Erweiterungen: zufällig wechselnde Textvarianten je Stufe; die „Lebenszeit“-Zeile aus A
 oder die Wochentags-Abbildung aus B übernehmen.

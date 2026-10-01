@@ -1,38 +1,61 @@
 import { describe, expect, it } from "vitest";
-import { formatWorkTime } from "./format";
+import { formatHoursMinutes, formatWeeksDays, splitWorkTime } from "./format";
 
-describe("formatWorkTime (8 h pro Tag)", () => {
-  it("zeigt Minuten unter einer Stunde", () => {
-    expect(formatWorkTime(0.5, 8)).toMatchObject({ unit: "minutes", primary: "ca. 30 Minuten" });
-    expect(formatWorkTime(1 / 60, 8).primary).toBe("ca. 1 Minute");
-    expect(formatWorkTime(0, 8).primary).toBe("ca. 0 Minuten");
+describe("splitWorkTime (8 h pro Tag)", () => {
+  const text = (hours: number) => splitWorkTime(hours, 8)?.text;
+
+  it("zeigt nur Minuten unter einer Stunde", () => {
+    expect(splitWorkTime(0.75, 8)).toEqual({ unit: "minutes", text: "45 Minuten", days: 0 });
+    expect(text(1 / 60)).toBe("1 Minute");
+    expect(text(0)).toBe("0 Minuten");
   });
 
-  it("rundet 59,6 Minuten nicht auf 60 Minuten", () => {
-    expect(formatWorkTime(59.6 / 60, 8).unit).toBe("hours");
+  it("zerlegt Stunden in Stunden und Minuten", () => {
+    expect(splitWorkTime(3.8, 8)).toEqual({ unit: "hours", text: "3 Stunden und 48 Minuten", days: 0 });
+    expect(text(1)).toBe("1 Stunde");
+    expect(text(2.5)).toBe("2 Stunden und 30 Minuten");
+    expect(text(1 + 1 / 60)).toBe("1 Stunde und 1 Minute");
   });
 
-  it("zeigt Stunden unter einem Arbeitstag", () => {
-    const r = formatWorkTime(2.5, 8);
-    expect(r.unit).toBe("hours");
-    expect(r.primary).toBe("ca. 2,5 Arbeitsstunden");
-    expect(r.secondary).toBe("≈ 0,3 Arbeitstage");
+  it("zerlegt Arbeitstage in Tage und Stunden", () => {
+    expect(splitWorkTime(6.1 * 8, 8)).toEqual({ unit: "days", text: "6 Tage und 1 Stunde", days: 6 });
+    expect(text(8)).toBe("1 Tag");
+    expect(text(29.7)).toBe("3 Tage und 6 Stunden");
+    expect(text(10)).toBe("1 Tag und 2 Stunden");
   });
 
-  it("zeigt Arbeitstage ab einem vollen Tag", () => {
-    const r = formatWorkTime(32, 8);
-    expect(r.unit).toBe("days");
-    expect(r.primary).toBe("ca. 4 Arbeitstage");
-    expect(r.secondary).toBe("≈ 32 Arbeitsstunden");
+  it("überträgt Rundungen in die nächstgrößere Einheit", () => {
+    expect(text(59.6 / 60)).toBe("1 Stunde");
+    expect(text(31.9)).toBe("4 Tage");
+    expect(splitWorkTime(31.9, 8)?.days).toBe(4);
   });
 
-  it("nutzt Singular und deutsches Dezimalkomma", () => {
-    expect(formatWorkTime(8, 8).primary).toBe("ca. 1 Arbeitstag");
-    expect(formatWorkTime(34.4, 8).primary).toBe("ca. 4,3 Arbeitstage");
+  it("kommt mit krummen Stunden pro Tag zurecht (38,5 h an 5 Tagen)", () => {
+    expect(splitWorkTime(7.6, 7.7)?.text).toBe("7 Stunden und 36 Minuten");
+    expect(splitWorkTime(7.7 * 3 + 2, 7.7)?.text).toBe("3 Tage und 2 Stunden");
   });
 
-  it("gibt bei ungültigen Werten einen Platzhalter zurück", () => {
-    expect(formatWorkTime(NaN, 8).primary).toBe("–");
-    expect(formatWorkTime(5, 0).primary).toBe("–");
+  it("liefert null bei ungültigen Werten", () => {
+    expect(splitWorkTime(NaN, 8)).toBeNull();
+    expect(splitWorkTime(-1, 8)).toBeNull();
+    expect(splitWorkTime(5, 0)).toBeNull();
+  });
+});
+
+describe("formatHoursMinutes", () => {
+  it("zeigt Stunden und Minuten", () => {
+    expect(formatHoursMinutes(29.7)).toBe("29 Stunden und 42 Minuten");
+    expect(formatHoursMinutes(40)).toBe("40 Stunden");
+    expect(formatHoursMinutes(0.5)).toBe("30 Minuten");
+  });
+});
+
+describe("formatWeeksDays", () => {
+  it("zeigt Wochen und Tage", () => {
+    expect(formatWeeksDays(12.4, 5)).toBe("2 Wochen und 2 Tage");
+    expect(formatWeeksDays(5, 5)).toBe("1 Woche");
+    expect(formatWeeksDays(6, 5)).toBe("1 Woche und 1 Tag");
+    expect(formatWeeksDays(9.6, 5)).toBe("2 Wochen");
+    expect(formatWeeksDays(8, 4)).toBe("2 Wochen");
   });
 });

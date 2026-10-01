@@ -24,7 +24,7 @@ Sprache der Oberfläche: Deutsch. Code und Kommentare: Englisch oder Deutsch, ab
    - Bundesland (alle 16) für die Feiertage
 2. **Rechner**
    - Eingabe eines Eurobetrags
-   - Ausgabe als Arbeitszeit, Einheit je nach Größe automatisch: Minuten, Stunden oder Arbeitstage
+   - Ausgabe als Arbeitszeit, Einheit je nach Größe automatisch, immer in höchstens zwei ganzen Einheiten: Minuten; Stunden und Minuten; Tage und Stunden (z. B. „6 Tage und 1 Stunde“)
    - Ton der Ausgabe: „frech“, steigert sich mit dem Betrag (Vorschlag C). Alle drei Varianten (A, B, C) stehen in `docs/ausgabe-varianten.md`, damit später umentschieden werden kann.
 3. **Dunkelmodus**
    - Folgt dem System, zusätzlich manuell umschaltbar, Auswahl wird gespeichert
