@@ -140,6 +140,13 @@ test("Funktioniert nach dem ersten Besuch auch offline", async ({ page, context 
   await context.setOffline(false);
 });
 
+test("Service Worker umgeht den HTTP-Cache, damit ein Deploy sofort ankommt", async ({ request }) => {
+  // GitHub Pages sends max-age=600; without these options the page could stay ten minutes behind a deploy.
+  const source = await (await request.get("sw.js")).text();
+  expect(source).toContain('fetch(request, { cache: "no-cache" })');
+  expect(source).toContain('new Request(file, { cache: "reload" })');
+});
+
 test("Hat eine Link-Vorschau für Messenger (Open Graph)", async ({ page, request }) => {
   const meta = (selector: string) => page.locator(`meta[${selector}]`).getAttribute("content");
   expect(await meta('name="description"')).toBe(t.app.description);
