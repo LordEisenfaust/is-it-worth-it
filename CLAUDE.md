@@ -14,6 +14,7 @@ Sprache der Oberfläche: Deutsch. Code und Kommentare: Englisch oder Deutsch, ab
 - Speicherung ausschließlich in localStorage (Schlüssel-Präfix `iiwi:`)
 - Tests mit Vitest für die Berechnungslogik, Oberflächen-Tests mit Playwright (`e2e/`, Desktop und Handy, festes Datum 1.10.2026)
 - Statisches Build (`base: "./"`), soll sich überall hosten lassen
+- PWA ohne Zusatzbibliothek: `scripts/pwa-plugin.ts` erzeugt beim Build `manifest.webmanifest` (Texte aus dem Katalog) und `sw.js` (Precache aller Dateien, Cache-Name mit Version und Commit, Seiten network-first, Dateien cache-first mit `ignoreVary`). Symbole: nach Änderung an `scripts/icons/hourglass.svg.tpl` `node scripts/render-icons.mjs` ausführen.
 
 ## Funktionen der ersten Version
 
