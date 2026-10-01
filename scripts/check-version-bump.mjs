@@ -11,8 +11,12 @@ if (!base) {
 
 const git = (...args) => execFileSync("git", args, { encoding: "utf8" });
 
-// Documentation and CI configuration do not change the app, so they need no new version.
-const exempt = (file) => file.endsWith(".md") || /^(docs|\.github|\.claude)\//.test(file);
+// Documentation, CI configuration and tests do not change the app, so they need no new version.
+const exempt = (file) =>
+  file.endsWith(".md") ||
+  file.endsWith(".test.ts") ||
+  file === "playwright.config.ts" ||
+  /^(docs|e2e|\.github|\.claude)\//.test(file);
 
 const changed = git("diff", "--name-only", `${base}...HEAD`).split("\n").filter(Boolean);
 const relevant = changed.filter((file) => !exempt(file));

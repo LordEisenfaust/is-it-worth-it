@@ -40,7 +40,10 @@ npm run dev        # Entwicklungsserver
 npm test           # Unit-Tests (Vitest)
 npm run typecheck  # TypeScript-Prüfung
 npm run build      # statisches Build nach dist/
+npm run test:e2e   # Oberflächen-Tests im Browser (Playwright, Desktop und Handy)
 ```
+
+Für die Oberflächen-Tests einmalig `npx playwright install chromium` ausführen. Ist bereits ein Chromium installiert, kann es stattdessen mit `PW_CHROMIUM_PATH=/pfad/zu/chromium npm run test:e2e` genutzt werden. Die Tests frieren das Datum auf den 1. Oktober 2026 ein, damit Feiertage und Arbeitstage stabil bleiben.
 
 Das Build nutzt `base: "./"` und läuft dadurch auf jedem statischen Hosting, auch unter einem Unterpfad.
 
@@ -53,7 +56,7 @@ npm version patch --no-git-tag-version   # Fehlerbehebung: 0.2.0 → 0.2.1
 npm version minor --no-git-tag-version   # neue Funktion:  0.2.0 → 0.3.0
 ```
 
-Die CI lässt Pull Requests fehlschlagen, wenn sich die App ändert, die Version aber nicht (reine Doku- und CI-Änderungen sind ausgenommen, ebenso Abhängigkeits-Updates von Dependabot).
+Die CI lässt Pull Requests fehlschlagen, wenn sich die App ändert, die Version aber nicht (reine Doku-, CI- und Test-Änderungen sind ausgenommen, ebenso Abhängigkeits-Updates von Dependabot).
 
 ### Abhängigkeiten
 
