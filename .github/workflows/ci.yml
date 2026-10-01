@@ -30,3 +30,7 @@ jobs:
       - run: npm test
       - run: npm run typecheck
       - run: npm run build
+      - name: Browser für die Oberflächen-Tests installieren
+        run: npx playwright install --with-deps chromium
+      - name: Oberflächen-Tests (Playwright, Desktop und Handy)
+        run: npm run test:e2e
