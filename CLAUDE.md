@@ -15,7 +15,7 @@ Sprache der Oberfläche: Deutsch. Code und Kommentare: Englisch oder Deutsch, ab
 
 ## Funktionen der ersten Version
 
-1. **Einrichtung (Gehaltsdaten)** – in einem ein-/ausklappbaren Einstellungs-Menü, beim ersten Start (ungültige Daten) offen
+1. **Einrichtung (Gehaltsdaten)** – in einer eigenen Ansicht „Einstellungen“, getrennt vom Rechner; beim ersten Start (ungültige Daten) geöffnet
    - Umschalter: Jahresnetto oder Monatsnetto
    - Bei Monatsnetto: Anzahl der Monatsgehälter pro Jahr per Slider (12 bis 16, ganze Schritte, Standard 12)
    - Wochenstunden
