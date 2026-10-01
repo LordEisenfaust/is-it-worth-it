@@ -400,3 +400,17 @@ footer {
 .app-meta p {
   margin: 0 0 0.25rem;
 }
+
+.app-meta a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.app-meta a:hover {
+  color: var(--text);
+}
+
+.app-meta .icon {
+  vertical-align: -2px;
+}

@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Calculator } from "./components/Calculator";
+import { GitHubIcon } from "./components/GitHubIcon";
 import { PrivacyPanel } from "./components/PrivacyPanel";
 import { SettingsForm } from "./components/SettingsForm";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { computeWage } from "./lib/calc";
 import { CREDIT_PREFIX, pickQuip } from "./lib/quips";
+import { commitUrl, REPO_URL } from "./lib/repo";
 import { defaultDraft, sanitizeDraft, validateDraft, type SettingsDraft } from "./lib/settings";
 import { clearAll, KEYS, loadJson, PREFIX, saveUnlessDefault } from "./lib/storage";
 import { sanitizeTheme, type ThemeChoice } from "./lib/theme";
@@ -14,6 +16,7 @@ export function App() {
   const [theme, setTheme] = useState<ThemeChoice>(() => sanitizeTheme(loadJson(KEYS.theme)));
   // A new quip on every page load; nothing is stored.
   const [quip] = useState(pickQuip);
+  const commitLink = commitUrl(__APP_COMMIT__);
 
   // The history feature was removed; drop data left over from earlier versions.
   useEffect(() => {
@@ -101,7 +104,18 @@ export function App() {
           {CREDIT_PREFIX} {quip}
         </p>
         <p>
-          Version {__APP_VERSION__} ({__APP_COMMIT__})
+          Version {__APP_VERSION__} (
+          {commitLink ? (
+            <a href={commitLink} target="_blank" rel="noopener noreferrer" title="Diesen Stand auf GitHub ansehen">
+              {__APP_COMMIT__}
+            </a>
+          ) : (
+            __APP_COMMIT__
+          )}
+          ) ·{" "}
+          <a href={REPO_URL} target="_blank" rel="noopener noreferrer" aria-label="Reinschauen erlaubt: Quellcode auf GitHub">
+            <GitHubIcon /> Reinschauen erlaubt
+          </a>
         </p>
       </div>
     </>
