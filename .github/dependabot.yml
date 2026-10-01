@@ -1,0 +1,18 @@
+# Monthly update suggestions as pull requests, grouped to keep the noise low.
+# Dependabot PRs skip the version-bump check in ci.yml; they still run tests, typecheck and build.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      npm-dependencies:
+        patterns: ["*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      github-actions:
+        patterns: ["*"]
