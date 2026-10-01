@@ -54,8 +54,22 @@ export const QUIPS: readonly string[] = [
   "ist nur eine KI. Du hast echte Lebenszeit. Geh sparsam damit um.",
 ];
 
-/** Picks a quip; `random` returns a number in [0, 1) like Math.random (injectable for tests). */
+/** Shown in the calculator's result box while no amount is entered; one at random per page load. */
+export const EMPTY_PROMPTS: readonly string[] = [
+  "Na, was willst du dir gönnen? Tipp den Preis ein.",
+  "Raus damit: Was kostet der Spaß?",
+  "Betrag eingeben. Wir verraten dir, wie lange du dafür schuftest.",
+  "Was liegt im Warenkorb? Wir sagen's keinem.",
+  "Leg los. Dein Konto hält schon mal die Luft an.",
+  "Trau dich. Wie teuer ist es?",
+];
+
+/** Picks one entry; `random` returns a number in [0, 1) like Math.random (injectable for tests). */
+export function pickFrom(list: readonly string[], random: () => number = Math.random): string {
+  const index = Math.min(list.length - 1, Math.max(0, Math.floor(random() * list.length)));
+  return list[index];
+}
+
 export function pickQuip(random: () => number = Math.random): string {
-  const index = Math.min(QUIPS.length - 1, Math.max(0, Math.floor(random() * QUIPS.length)));
-  return QUIPS[index];
+  return pickFrom(QUIPS, random);
 }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { hoursForAmount, type WageResult } from "../lib/calc";
 import { formatEuro } from "../lib/format";
 import { parseAmount } from "../lib/parse";
+import { EMPTY_PROMPTS, pickFrom } from "../lib/quips";
 import { workTimeVerdict } from "../lib/verdict";
 
 interface Props {
@@ -14,6 +15,8 @@ interface Props {
 
 export function Calculator({ wage, settingsInvalid, workdaysPerWeek }: Props) {
   const [amountText, setAmountText] = useState("");
+  // A different nudge on every page load; stays the same while the page is open.
+  const [emptyPrompt] = useState(() => pickFrom(EMPTY_PROMPTS));
 
   const amount = parseAmount(amountText);
   const info = wage?.ok ? wage.info : null;
@@ -61,7 +64,7 @@ export function Calculator({ wage, settingsInvalid, workdaysPerWeek }: Props) {
           ) : hint ? (
             <p className="error">{hint}</p>
           ) : (
-            <p className="muted">Gib einen Betrag ein, um die Arbeitszeit zu sehen.</p>
+            <p className="muted">{emptyPrompt}</p>
           )}
         </div>
       </form>
