@@ -111,3 +111,31 @@ test("Fußzeile zeigt Version, Links und einen Spruch", async ({ page }) => {
   expect(credit.startsWith(t.footer.creditPrefix)).toBe(true);
   expect(t.footer.quips).toContain(credit.slice(t.footer.creditPrefix.length).trim());
 });
+
+test("Ist als App installierbar: Manifest und Symbole sind erreichbar", async ({ page, request }) => {
+  const href = await page.locator('link[rel="manifest"]').getAttribute("href");
+  expect(href).toBeTruthy();
+  const manifest = await (await request.get(href!)).json();
+  expect(manifest.name).toBe(t.app.title);
+  expect(manifest.display).toBe("standalone");
+  expect(manifest.icons.map((i: { purpose: string }) => i.purpose)).toEqual(["any", "any", "maskable"]);
+  for (const icon of manifest.icons) {
+    const response = await request.get(icon.src);
+    expect(response.ok()).toBe(true);
+    expect(response.headers()["content-type"]).toBe("image/png");
+  }
+});
+
+test("Funktioniert nach dem ersten Besuch auch offline", async ({ page, context }) => {
+  // First visit installs the service worker; it takes control right away (clients.claim).
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await expect.poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null)).toBe(true);
+  await setUpSalary(page);
+
+  await context.setOffline(true);
+  await page.reload();
+  await expect(page.getByRole("heading", { name: t.app.title })).toBeVisible();
+  await page.getByLabel(t.calculator.amountLabel).fill("600");
+  await expect(result(page)).toContainText(t.verdict.level3Headline("3 Tage und 6 Stunden"));
+  await context.setOffline(false);
+});

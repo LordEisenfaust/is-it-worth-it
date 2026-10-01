@@ -9,12 +9,15 @@ Eine kleine Web-App, die Einkäufe in Arbeitszeit umrechnet. Beispiel: Bei 600 �
 - **Einstellungen:** Gehaltsdaten (eigene Ansicht neben dem Rechner, beim ersten Start geöffnet): Jahres- oder Monatsnetto (bei Monatsnetto 12 bis 16 Gehälter), Wochenstunden, frei wählbare Arbeitstage, Urlaubstage und Bundesland für die Feiertage
 - **Rechner:** Betrag eingeben, das Ergebnis erscheint automatisch in zwei Einheiten (z. B. „3 Stunden und 48 Minuten“ oder „6 Tage und 1 Stunde“), mit einem frechen Kommentar, der mit dem Betrag schärfer wird
 - **Dunkelmodus:** folgt dem System und lässt sich manuell umschalten
+- **Als App installierbar und offline nutzbar (PWA):** im Browser „Zum Startbildschirm hinzufügen“ bzw. „Installieren“; nach dem ersten Besuch funktioniert die App auch ohne Netz
 - **Datenschutz:** ein Button löscht alle gespeicherten Daten
 - **Fußzeile:** Version und Commit-Hash, darunter bei jedem Aufruf ein anderer von 40 frechen Sprüchen
 
 ## Datenschutz
 
 Es gibt kein Backend und keinen Login. Alle Eingaben werden ausschließlich im `localStorage` deines Browsers gespeichert (Schlüssel mit Präfix `iiwi:`) und nirgendwohin übertragen. Es gibt kein Tracking und keine Analyse-Tools.
+
+Für den Offline-Betrieb speichert der Browser die Dateien der App (HTML, JavaScript, CSS, Symbole) in seinem Cache; deine Eingaben sind darin nicht enthalten.
 
 Wie bei jeder Webseite sieht der Hoster (GitHub Pages) beim Aufruf technisch die IP-Adresse; die eingegebenen Daten erreichen ihn nicht.
 
@@ -67,6 +70,7 @@ Dependabot schlägt einmal im Monat gebündelte Updates für npm-Pakete und GitH
 - `src/lib/`: reine Berechnungslogik ohne React, mit Tests (Feiertage, Lohn, Formatierung, Validierung, Speicher)
 - `src/i18n/de.ts`: Textkatalog mit allen sichtbaren Texten der App (Oberfläche, Fehlermeldungen, Sprüche, Feiertage)
 - `src/components/`: React-Komponenten der Oberfläche
+- `scripts/pwa-plugin.ts`: erzeugt beim Build Manifest und Service Worker (Offline-Betrieb); `scripts/render-icons.mjs` rendert die App-Symbole aus `scripts/icons/hourglass.svg.tpl`
 - `src/App.tsx`: Zustand und Zusammenspiel der Komponenten
 
 ## Stand
