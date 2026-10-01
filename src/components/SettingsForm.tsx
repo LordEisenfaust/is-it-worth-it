@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { WageResult } from "../lib/calc";
+import { t } from "../i18n";
 import { formatEuro } from "../lib/format";
 import { STATE_CODES, STATE_NAMES, type StateCode } from "../lib/holidays";
 import {
@@ -11,24 +12,13 @@ import {
   type ValidationResult,
 } from "../lib/settings";
 
-// Display order Monday to Sunday; values follow JavaScript (0 = Sunday).
-const WEEKDAYS: { value: number; label: string; short: string }[] = [
-  { value: 1, label: "Montag", short: "Mo" },
-  { value: 2, label: "Dienstag", short: "Di" },
-  { value: 3, label: "Mittwoch", short: "Mi" },
-  { value: 4, label: "Donnerstag", short: "Do" },
-  { value: 5, label: "Freitag", short: "Fr" },
-  { value: 6, label: "Samstag", short: "Sa" },
-  { value: 0, label: "Sonntag", short: "So" },
-];
-
-const dateFormat = new Intl.DateTimeFormat("de-DE", {
+const dateFormat = new Intl.DateTimeFormat(t.locale, {
   weekday: "short",
   day: "2-digit",
   month: "2-digit",
   timeZone: "UTC",
 });
-const numberFormat = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 2 });
+const numberFormat = new Intl.NumberFormat(t.locale, { maximumFractionDigits: 2 });
 
 interface Props {
   draft: SettingsDraft;
@@ -44,7 +34,7 @@ export function SettingsForm({ draft, errors, wage, onChange }: Props) {
   const set = <K extends keyof SettingsDraft>(key: K, value: SettingsDraft[K]) =>
     onChange({ ...draft, [key]: value });
 
-  const netLabel = draft.mode === "monthly" ? "Monatsnetto in Euro" : "Jahresnetto in Euro";
+  const netLabel = draft.mode === "monthly" ? t.settings.netLabelMonthly : t.settings.netLabelYearly;
   const info = wage?.ok ? wage.info : null;
 
   function toggleDay(day: number) {
@@ -54,10 +44,10 @@ export function SettingsForm({ draft, errors, wage, onChange }: Props) {
 
   return (
     <section aria-labelledby="settings-title" className="card">
-      <h2 id="settings-title">Gehaltsdaten</h2>
+      <h2 id="settings-title">{t.settings.title}</h2>
 
       <fieldset className="segmented wide">
-        <legend>Eingabeart</legend>
+        <legend>{t.settings.modeLegend}</legend>
         {(["monthly", "yearly"] as IncomeMode[]).map((mode) => (
           <label key={mode}>
             <input
@@ -67,7 +57,7 @@ export function SettingsForm({ draft, errors, wage, onChange }: Props) {
               checked={draft.mode === mode}
               onChange={() => set("mode", mode)}
             />
-            <span>{mode === "monthly" ? "Monatsnetto" : "Jahresnetto"}</span>
+            <span>{mode === "monthly" ? t.settings.monthly : t.settings.yearly}</span>
           </label>
         ))}
       </fieldset>
@@ -93,7 +83,7 @@ export function SettingsForm({ draft, errors, wage, onChange }: Props) {
       {draft.mode === "monthly" && (
         <div className="field">
           <label htmlFor="months">
-            Monatsgehälter pro Jahr: <strong>{draft.monthsPerYear}</strong>
+            {t.settings.monthsLabel} <strong>{draft.monthsPerYear}</strong>
           </label>
           <input
             id="months"
@@ -108,7 +98,7 @@ export function SettingsForm({ draft, errors, wage, onChange }: Props) {
       )}
 
       <div className="field">
-        <label htmlFor="weekly-hours">Wochenstunden</label>
+        <label htmlFor="weekly-hours">{t.settings.weeklyHoursLabel}</label>
         <input
           id="weekly-hours"
           type="text"
@@ -126,9 +116,9 @@ export function SettingsForm({ draft, errors, wage, onChange }: Props) {
       </div>
 
       <fieldset className="field days" aria-describedby="workdays-error">
-        <legend>Arbeitstage</legend>
+        <legend>{t.settings.workdaysLegend}</legend>
         <div className="day-list">
-          {WEEKDAYS.map((day) => (
+          {t.weekdays.map((day) => (
             <label key={day.value} className="day">
               <input
                 type="checkbox"
@@ -146,7 +136,7 @@ export function SettingsForm({ draft, errors, wage, onChange }: Props) {
       </fieldset>
 
       <div className="field">
-        <label htmlFor="vacation">Urlaubstage pro Jahr</label>
+        <label htmlFor="vacation">{t.settings.vacationLabel}</label>
         <input
           id="vacation"
           type="text"
@@ -164,7 +154,7 @@ export function SettingsForm({ draft, errors, wage, onChange }: Props) {
       </div>
 
       <div className="field">
-        <label htmlFor="state">Bundesland (für Feiertage)</label>
+        <label htmlFor="state">{t.settings.stateLabel}</label>
         <select id="state" value={draft.state} onChange={(e) => set("state", e.target.value as StateCode)}>
           {STATE_CODES.map((code) => (
             <option key={code} value={code}>
@@ -176,26 +166,24 @@ export function SettingsForm({ draft, errors, wage, onChange }: Props) {
 
       {info && (
         <div className="summary" aria-live="polite">
-          <h3>So wird gerechnet ({info.year})</h3>
+          <h3>{t.settings.summaryTitle(info.year)}</h3>
           <dl>
-            <dt>Jahresnetto</dt>
+            <dt>{t.settings.annualNet}</dt>
             <dd>{formatEuro(info.annualNet)}</dd>
-            <dt>Arbeitstage pro Jahr</dt>
+            <dt>{t.settings.workingDaysPerYear}</dt>
             <dd>{info.workingDaysPerYear}</dd>
-            <dt>Stunden pro Arbeitstag</dt>
+            <dt>{t.settings.hoursPerDay}</dt>
             <dd>{numberFormat.format(info.hoursPerDay)}</dd>
-            <dt>Netto-Stundenlohn</dt>
+            <dt>{t.settings.hourlyWage}</dt>
             <dd>{formatEuro(info.hourlyWage)}</dd>
           </dl>
           <details>
-            <summary>
-              Feiertage ({info.allHolidays.length}, davon {info.holidaysOnWorkdays.length} abgezogen)
-            </summary>
+            <summary>{t.settings.holidaysSummary(info.allHolidays.length, info.holidaysOnWorkdays.length)}</summary>
             <ul className="holidays">
               {info.allHolidays.map((h) => (
                 <li key={`${h.name}-${h.date.getTime()}`} className={h.onWorkday ? undefined : "off-day"}>
                   {dateFormat.format(h.date)} – {h.name}
-                  {!h.onWorkday && <span className="note"> (laut Auswahl kein Arbeitstag, nicht abgezogen)</span>}
+                  {!h.onWorkday && <span className="note">{t.settings.holidayOffDay}</span>}
                 </li>
               ))}
             </ul>

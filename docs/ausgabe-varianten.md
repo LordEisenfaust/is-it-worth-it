@@ -57,7 +57,7 @@ oder die Wochentags-Abbildung aus B übernehmen.
 ## Leerer Ergebniskasten
 
 Solange kein Betrag eingegeben ist, steht im Ergebniskasten einer von sechs Texten, zufällig pro
-Seitenaufruf (`EMPTY_PROMPTS` in `src/lib/quips.ts`). Früher: „Gib einen Betrag ein, um die Arbeitszeit zu sehen.“
+Seitenaufruf (`calculator.emptyPrompts` im Textkatalog `src/i18n/de.ts`). Früher: „Gib einen Betrag ein, um die Arbeitszeit zu sehen.“
 
 1. Na, was willst du dir gönnen? Tipp den Preis ein.
 2. Raus damit: Was kostet der Spaß?

@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { formatHoursMinutes, formatWeeksDays, splitWorkTime } from "./format";
 
 /** 1 = under an hour, 2 = under a working day, 3 = under a working week, 4 = a week or more. */
@@ -19,12 +20,14 @@ export function workTimeVerdict(hours: number, hoursPerDay: number, workdaysPerW
   if (!(workdaysPerWeek > 0)) return null;
   const parts = splitWorkTime(hours, hoursPerDay);
   if (!parts) return null;
+  const v = t.verdict;
 
   if (parts.unit === "minutes") {
+    const totalMinutesZero = Math.round(hours * 60) === 0;
     return {
       level: 1,
-      headline: parts.text === "0 Minuten" ? "Nicht mal eine Minute. Gönn dir." : `${parts.text}. Gönn dir.`,
-      comment: "So schnell verdient, so schnell ausgegeben.",
+      headline: totalMinutesZero ? v.level1HeadlineUnderMinute : v.level1Headline(parts.text),
+      comment: v.level1Comment,
       detail: "",
     };
   }
@@ -33,26 +36,26 @@ export function workTimeVerdict(hours: number, hoursPerDay: number, workdaysPerW
     const share = hours / hoursPerDay;
     return {
       level: 2,
-      headline: `${parts.text} Arbeit.`,
-      comment: `${share >= 0.5 ? "Ein Großteil deines Arbeitstags" : "Ein ordentliches Stück deines Arbeitstags"}. Brauchst du das wirklich?`,
+      headline: v.level2Headline(parts.text),
+      comment: share >= 0.5 ? v.level2CommentLarge : v.level2CommentSmall,
       detail: "",
     };
   }
 
-  const detail = `≈ ${formatHoursMinutes(hours)}`;
+  const detail = v.detail(formatHoursMinutes(hours));
   if (parts.days < workdaysPerWeek) {
     return {
       level: 3,
-      headline: `${parts.text} Schufterei.`,
-      comment: "Schlaf lieber noch eine Nacht drüber.",
+      headline: v.level3Headline(parts.text),
+      comment: v.level3Comment,
       detail,
     };
   }
 
   return {
     level: 4,
-    headline: `${parts.text} Arbeit. Ernsthaft?`,
-    comment: `${formatWeeksDays(hours / hoursPerDay, workdaysPerWeek)} deines Lebens. Das muss es dir wert sein.`,
+    headline: v.level4Headline(parts.text),
+    comment: v.level4Comment(formatWeeksDays(hours / hoursPerDay, workdaysPerWeek)),
     detail,
   };
 }

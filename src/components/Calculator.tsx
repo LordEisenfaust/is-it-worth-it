@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { hoursForAmount, type WageResult } from "../lib/calc";
+import { t } from "../i18n";
 import { formatEuro } from "../lib/format";
 import { parseAmount } from "../lib/parse";
 import { EMPTY_PROMPTS, pickFrom } from "../lib/quips";
@@ -24,22 +25,22 @@ export function Calculator({ wage, settingsInvalid, workdaysPerWeek }: Props) {
   const verdict = info && Number.isFinite(hours) ? workTimeVerdict(hours, info.hoursPerDay, workdaysPerWeek) : null;
 
   let hint: string | null = null;
-  if (settingsInvalid) hint = "Bitte zuerst die Gehaltsdaten in den Einstellungen vollständig und gültig ausfüllen.";
+  if (settingsInvalid) hint = t.calculator.settingsMissing;
   else if (wage && !wage.ok) hint = wage.error;
   else if (amountText.trim() !== "" && !amount.ok) hint = amount.error;
 
   return (
     <section aria-labelledby="calc-title" className="card">
-      <h2 id="calc-title">Rechner</h2>
+      <h2 id="calc-title">{t.calculator.title}</h2>
       <form onSubmit={(e) => e.preventDefault()}>
         <div className="field">
-          <label htmlFor="amount">Betrag in Euro</label>
+          <label htmlFor="amount">{t.calculator.amountLabel}</label>
           <input
             id="amount"
             type="text"
             inputMode="decimal"
             autoComplete="off"
-            placeholder="z. B. 1599 für ein neues Handy"
+            placeholder={t.calculator.amountPlaceholder}
             value={amountText}
             onChange={(e) => setAmountText(e.target.value)}
             aria-describedby="calc-status"
