@@ -46,6 +46,16 @@ describe("workTimeVerdict", () => {
     expect(v(40)?.comment).toBe("1 Woche deines Lebens. Das muss es dir wert sein.");
   });
 
+  it("Stufe 4: Wochenzeile widerspricht der Überschrift nicht", () => {
+    // 84,9 h = 10 Tage und 5 Stunden; früher stand darunter "2 Wochen und 1 Tag" (aufgerundet).
+    const r = v(84.9);
+    expect(r?.headline).toBe("10 Tage und 5 Stunden Arbeit. Ernsthaft?");
+    expect(r?.comment).toBe("2 Wochen deines Lebens. Das muss es dir wert sein.");
+    // Bei einer 4-Tage-Woche zählen 9 ganze Tage als 2 Wochen und 1 Tag (die 0,6 Tage werden nicht mitgerundet).
+    expect(workTimeVerdict(76.8, 8, 4)?.headline).toBe("9 Tage und 5 Stunden Arbeit. Ernsthaft?");
+    expect(workTimeVerdict(76.8, 8, 4)?.comment).toBe("2 Wochen und 1 Tag deines Lebens. Das muss es dir wert sein.");
+  });
+
   it("richtet die Wochengrenze nach den gewählten Arbeitstagen", () => {
     expect(workTimeVerdict(32, 8, 5)?.level).toBe(3);
     expect(workTimeVerdict(32, 8, 4)?.level).toBe(4);
