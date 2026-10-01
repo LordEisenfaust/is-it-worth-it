@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CREDIT_PREFIX, pickQuip, QUIPS } from "./quips";
+import { CREDIT_PREFIX, EMPTY_PROMPTS, pickFrom, pickQuip, QUIPS } from "./quips";
 
 describe("Sprüche in der Fußzeile", () => {
   it("enthält 40 verschiedene, nicht leere Sprüche", () => {
@@ -18,5 +18,17 @@ describe("Sprüche in der Fußzeile", () => {
     expect(pickQuip(() => 0.5)).toBe(QUIPS[20]);
     expect(pickQuip(() => 1)).toBe(QUIPS[39]);
     expect(pickQuip(() => -0.1)).toBe(QUIPS[0]);
+  });
+});
+
+describe("Texte im leeren Ergebniskasten", () => {
+  it("enthält sechs verschiedene Texte", () => {
+    expect(EMPTY_PROMPTS).toHaveLength(6);
+    expect(new Set(EMPTY_PROMPTS).size).toBe(6);
+  });
+
+  it("wählt über pickFrom aus der Liste", () => {
+    expect(pickFrom(EMPTY_PROMPTS, () => 0)).toBe(EMPTY_PROMPTS[0]);
+    expect(pickFrom(EMPTY_PROMPTS, () => 0.99)).toBe(EMPTY_PROMPTS[5]);
   });
 });

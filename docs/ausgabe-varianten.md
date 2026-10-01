@@ -53,3 +53,15 @@ Tage und Stunden; Wochen und Tage (z. B. 6,1 Tage → „6 Tage und 1 Stunde“,
 
 Mögliche Erweiterungen: zufällig wechselnde Textvarianten je Stufe; die „Lebenszeit“-Zeile aus A
 oder die Wochentags-Abbildung aus B übernehmen.
+
+## Leerer Ergebniskasten
+
+Solange kein Betrag eingegeben ist, steht im Ergebniskasten einer von sechs Texten, zufällig pro
+Seitenaufruf (`EMPTY_PROMPTS` in `src/lib/quips.ts`). Früher: „Gib einen Betrag ein, um die Arbeitszeit zu sehen.“
+
+1. Na, was willst du dir gönnen? Tipp den Preis ein.
+2. Raus damit: Was kostet der Spaß?
+3. Betrag eingeben. Wir verraten dir, wie lange du dafür schuftest.
+4. Was liegt im Warenkorb? Wir sagen's keinem.
+5. Leg los. Dein Konto hält schon mal die Luft an.
+6. Trau dich. Wie teuer ist es?
