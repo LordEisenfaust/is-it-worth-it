@@ -63,10 +63,13 @@ export function Calculator({ wage, settingsInvalid, workdaysPerWeek }: Props) {
             <>
               <p className="result-primary">{verdict.headline}</p>
               <p>{verdict.comment}</p>
-              <p className="muted">
-                {formatEuro(amount.amount)}
-                {verdict.detail && ` · ${verdict.detail}`}
-              </p>
+              {/* Experiment: only from level 3 (a working day or more); small amounts need no extra line. */}
+              {verdict.level >= 3 && (
+                <p className="muted">
+                  {formatEuro(amount.amount)}
+                  {verdict.detail && ` · ${verdict.detail}`}
+                </p>
+              )}
             </>
           ) : hint ? (
             <p className="error">{hint}</p>
