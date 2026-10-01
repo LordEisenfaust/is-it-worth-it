@@ -15,7 +15,7 @@ Sprache der Oberfläche: Deutsch. Code und Kommentare: Englisch oder Deutsch, ab
 
 ## Funktionen der ersten Version
 
-1. **Einrichtung (Gehaltsdaten)**
+1. **Einrichtung (Gehaltsdaten)** – in einem ein-/ausklappbaren Einstellungs-Menü, beim ersten Start (ungültige Daten) offen
    - Umschalter: Jahresnetto oder Monatsnetto
    - Bei Monatsnetto: Anzahl der Monatsgehälter pro Jahr per Slider (12 bis 16, ganze Schritte, Standard 12)
    - Wochenstunden
@@ -25,11 +25,9 @@ Sprache der Oberfläche: Deutsch. Code und Kommentare: Englisch oder Deutsch, ab
 2. **Rechner**
    - Eingabe eines Eurobetrags
    - Ausgabe als Arbeitszeit, Einheit je nach Größe automatisch: Minuten, Stunden oder Arbeitstage
-3. **Verlauf**
-   - Letzte 20 Berechnungen (Betrag, Ergebnis, optional Bezeichnung), in localStorage
-4. **Dunkelmodus**
+3. **Dunkelmodus**
    - Folgt dem System, zusätzlich manuell umschaltbar, Auswahl wird gespeichert
-5. **Datenschutz**
+4. **Datenschutz**
    - Button, der alle gespeicherten Daten löscht
    - Hinweis in der UI, dass alles nur lokal im Browser liegt
 
