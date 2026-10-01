@@ -2,6 +2,8 @@
 
 Name der App: „Lohnt es?“, Untertitel: „Der Rechner, den dein Warenkorb hasst.“ (früher „Is it worth it?“, dann „Lohnt sich's?“). Live unter https://lohnt.es (Name und Domain-Endung bilden zusammen den Titel; eigene Domain in GitHub → Settings → Pages eingetragen, die alte Adresse lordeisenfaust.github.io/is-it-worth-it leitet weiter).
 
+Domain-Setup (nicht ändern, sonst ist die Seite nicht mehr erreichbar): Bei EuroDNS zeigen A-/AAAA-Records von `lohnt.es` auf die GitHub-Pages-IPs, `www` ist ein CNAME auf `lordeisenfaust.github.io`. Die Domain ist im GitHub-Profil (Settings → Pages) verifiziert; der TXT-Record `_github-pages-challenge-LordEisenfaust.lohnt.es` muss dafür bestehen bleiben. Das Deployment läuft per Workflow, deshalb gibt es keine `CNAME`-Datei im Repo.
+
 Web-Applikation, mit der man Einkäufe in Arbeitszeit verrechnen kann.
 Beispiel: Nutzer gibt 600 € ein, die App zeigt "Das entspricht ca. 4 Arbeitstagen" bzw. "32 Arbeitsstunden".
 
