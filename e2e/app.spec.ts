@@ -20,6 +20,7 @@ async function setUpSalary(page: Page, net = "3000") {
 
 test("Erststart zeigt die Einstellungen, danach rechnet der Rechner in vier Stufen", async ({ page }) => {
   await expect(page.getByRole("heading", { name: t.settings.title })).toBeVisible();
+  await expect(page.getByText(t.settings.intro)).toBeVisible();
   await expect(page.getByLabel(t.calculator.amountLabel)).toBeHidden();
 
   await setUpSalary(page);

@@ -45,6 +45,7 @@ export function SettingsForm({ draft, errors, wage, onChange }: Props) {
   return (
     <section aria-labelledby="settings-title" className="card">
       <h2 id="settings-title">{t.settings.title}</h2>
+      <p className="muted">{t.settings.intro}</p>
 
       <fieldset className="segmented wide">
         <legend>{t.settings.modeLegend}</legend>
