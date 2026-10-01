@@ -25,6 +25,7 @@ Sprache der Oberfläche: Deutsch. Code und Kommentare: Englisch oder Deutsch, ab
 2. **Rechner**
    - Eingabe eines Eurobetrags
    - Ausgabe als Arbeitszeit, Einheit je nach Größe automatisch: Minuten, Stunden oder Arbeitstage
+   - Ton der Ausgabe: „frech“, steigert sich mit dem Betrag (Vorschlag C). Alle drei Varianten (A, B, C) stehen in `docs/ausgabe-varianten.md`, damit später umentschieden werden kann.
 3. **Dunkelmodus**
    - Folgt dem System, zusätzlich manuell umschaltbar, Auswahl wird gespeichert
 4. **Datenschutz**
