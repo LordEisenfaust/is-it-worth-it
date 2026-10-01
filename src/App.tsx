@@ -93,6 +93,9 @@ export function App() {
       {view === "calculator" && (
         <footer className="muted">Alle Angaben bleiben lokal in deinem Browser. Details unter „Einstellungen“.</footer>
       )}
+      <p className="app-meta">
+        Version {__APP_VERSION__} ({__APP_COMMIT__}) · Made with ♥️ by Claude Opus 5.5
+      </p>
     </>
   );
 }
