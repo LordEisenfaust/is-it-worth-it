@@ -29,8 +29,10 @@ export function App() {
   }, [theme]);
 
   const validation = useMemo(() => validateDraft(draft), [draft]);
-  // Open on first use (no valid salary data yet), collapsed afterwards.
-  const [settingsOpen, setSettingsOpen] = useState(() => validateDraft(draft).settings === null);
+  // Start on the settings view while there is no valid salary data yet.
+  const [view, setView] = useState<"calculator" | "settings">(() =>
+    validateDraft(draft).settings === null ? "settings" : "calculator",
+  );
   const year = new Date().getFullYear();
   const wage = useMemo(
     () => (validation.settings ? computeWage(validation.settings, year) : null),
@@ -50,26 +52,34 @@ export function App() {
           <h1>Is it worth it?</h1>
           <p className="muted">Ist es das wirklich wert? Finden wir es heraus?</p>
         </div>
-        <div className="header-actions">
-          <ThemeToggle value={theme} onChange={setTheme} />
-          <button
-            type="button"
-            className="secondary"
-            aria-expanded={settingsOpen}
-            aria-controls="settings-panel"
-            onClick={() => setSettingsOpen((open) => !open)}
-          >
-            Einstellungen
-          </button>
-        </div>
+        <ThemeToggle value={theme} onChange={setTheme} />
       </header>
 
+      <nav className="view-nav" aria-label="Bereiche">
+        <button
+          type="button"
+          className={view === "calculator" ? undefined : "secondary"}
+          aria-current={view === "calculator" ? "page" : undefined}
+          onClick={() => setView("calculator")}
+        >
+          Rechner
+        </button>
+        <button
+          type="button"
+          className={view === "settings" ? undefined : "secondary"}
+          aria-current={view === "settings" ? "page" : undefined}
+          onClick={() => setView("settings")}
+        >
+          Einstellungen
+        </button>
+      </nav>
+
       <main>
-        <Calculator
-          wage={wage}
-          settingsInvalid={validation.settings === null}
-        />
-        {settingsOpen && (
+        {/* Kept mounted (just hidden) so the entered amount survives a visit to the settings. */}
+        <div hidden={view !== "calculator"}>
+          <Calculator wage={wage} settingsInvalid={validation.settings === null} />
+        </div>
+        {view === "settings" && (
           <div id="settings-panel">
             <SettingsForm draft={draft} errors={validation.errors} wage={wage} onChange={setDraft} />
             <PrivacyPanel onDeleteAll={deleteEverything} />
