@@ -4,6 +4,7 @@ import { PrivacyPanel } from "./components/PrivacyPanel";
 import { SettingsForm } from "./components/SettingsForm";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { computeWage } from "./lib/calc";
+import { CREDIT_PREFIX, pickQuip } from "./lib/quips";
 import { defaultDraft, sanitizeDraft, validateDraft, type SettingsDraft } from "./lib/settings";
 import { clearAll, KEYS, loadJson, PREFIX, saveUnlessDefault } from "./lib/storage";
 import { sanitizeTheme, type ThemeChoice } from "./lib/theme";
@@ -11,6 +12,8 @@ import { sanitizeTheme, type ThemeChoice } from "./lib/theme";
 export function App() {
   const [draft, setDraft] = useState<SettingsDraft>(() => sanitizeDraft(loadJson(KEYS.settings)));
   const [theme, setTheme] = useState<ThemeChoice>(() => sanitizeTheme(loadJson(KEYS.theme)));
+  // A new quip on every page load; nothing is stored.
+  const [quip] = useState(pickQuip);
 
   // The history feature was removed; drop data left over from earlier versions.
   useEffect(() => {
@@ -93,9 +96,14 @@ export function App() {
       {view === "calculator" && (
         <footer className="muted">Alle Angaben bleiben lokal in deinem Browser. Details unter „Einstellungen“.</footer>
       )}
-      <p className="app-meta">
-        Version {__APP_VERSION__} ({__APP_COMMIT__}) · Made with ♥️ by Claude Opus 5.5
-      </p>
+      <div className="app-meta">
+        <p>
+          {CREDIT_PREFIX} {quip}
+        </p>
+        <p>
+          Version {__APP_VERSION__} ({__APP_COMMIT__})
+        </p>
+      </div>
     </>
   );
 }

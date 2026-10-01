@@ -8,6 +8,7 @@ Eine kleine Web-App, die Einkäufe in Arbeitszeit umrechnet. Beispiel: Bei 600 �
 - **Rechner:** Betrag eingeben, das Ergebnis erscheint automatisch in zwei Einheiten (z. B. „3 Stunden und 48 Minuten“ oder „6 Tage und 1 Stunde“), mit einem frechen Kommentar, der mit dem Betrag schärfer wird
 - **Dunkelmodus:** folgt dem System und lässt sich manuell umschalten
 - **Datenschutz:** ein Button löscht alle gespeicherten Daten
+- **Fußzeile:** bei jedem Aufruf ein anderer von 40 frechen Sprüchen, darunter Version und Commit-Hash
 
 ## Datenschutz
 
@@ -41,7 +42,7 @@ Das Build nutzt `base: "./"` und läuft dadurch auf jedem statischen Hosting, au
 
 ### Versionierung
 
-Die App zeigt unten ihre Version und den Commit-Hash des Builds an, z. B. „Version 0.2.0 (540fcca)“. Der Hash wird bei jedem Build automatisch eingesetzt. Die Versionsnummer kommt aus `package.json` und muss bei jeder Änderung an der App erhöht werden:
+Die App zeigt unten ihre Version und den Commit-Hash des Builds an, z. B. „Version 0.3.0 (540fcca)“. Der Hash wird bei jedem Build automatisch eingesetzt. Die Versionsnummer kommt aus `package.json` und muss bei jeder Änderung an der App erhöht werden:
 
 ```bash
 npm version patch --no-git-tag-version   # Fehlerbehebung: 0.2.0 → 0.2.1
