@@ -18,7 +18,7 @@ const THEME = "#f26b1d";
 export function pwa(options: { version: string; commit: string }): Plugin {
   let outDir = "dist";
   return {
-    name: "lohnt-sich-pwa",
+    name: "lohnt-es-pwa",
     apply: "build",
     configResolved(config) {
       outDir = config.build.outDir;
