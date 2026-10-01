@@ -10,7 +10,7 @@ Eine kleine Web-App, die Einkäufe in Arbeitszeit umrechnet. Beispiel: Bei 600 �
 - **Rechner:** Betrag eingeben, das Ergebnis erscheint automatisch in zwei Einheiten (z. B. „3 Stunden und 48 Minuten“ oder „6 Tage und 1 Stunde“), mit einem frechen Kommentar, der mit dem Betrag schärfer wird
 - **Dunkelmodus:** folgt dem System und lässt sich manuell umschalten
 - **Datenschutz:** ein Button löscht alle gespeicherten Daten
-- **Fußzeile:** bei jedem Aufruf ein anderer von 40 frechen Sprüchen, darunter Version und Commit-Hash
+- **Fußzeile:** Version und Commit-Hash, darunter bei jedem Aufruf ein anderer von 40 frechen Sprüchen
 
 ## Datenschutz
 

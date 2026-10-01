@@ -101,9 +101,6 @@ export function App() {
       )}
       <div className="app-meta">
         <p>
-          {CREDIT_PREFIX} {quip}
-        </p>
-        <p>
           Version {__APP_VERSION__} (
           {commitLink ? (
             <a href={commitLink} target="_blank" rel="noopener noreferrer" title="Diesen Stand auf GitHub ansehen">
@@ -116,6 +113,9 @@ export function App() {
           <a href={REPO_URL} target="_blank" rel="noopener noreferrer" aria-label="Quellcode auf GitHub" title="Quellcode auf GitHub">
             <GitHubIcon />
           </a>
+        </p>
+        <p>
+          {CREDIT_PREFIX} {quip}
         </p>
       </div>
     </>
