@@ -73,6 +73,8 @@ export const de = {
 
   settings: {
     title: "Gehaltsdaten",
+    intro:
+      "Damit wir Preise in Arbeitszeit umrechnen können, brauchen wir deinen Netto-Stundenlohn. Gemeint ist, was nach Steuern und Abgaben auf deinem Konto landet.",
     modeLegend: "Eingabeart",
     monthly: "Monatsnetto",
     yearly: "Jahresnetto",
