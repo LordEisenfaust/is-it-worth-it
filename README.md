@@ -1,4 +1,6 @@
-# Is it worth it?
+# Lohnt sich's?
+
+*Der Rechner, den dein Warenkorb hasst.* (Früher „Is it worth it?“; Repository und URL heißen weiterhin `is-it-worth-it`.)
 
 Eine kleine Web-App, die Einkäufe in Arbeitszeit umrechnet. Beispiel: Bei 600 € zeigt sie, wie viele Arbeitsstunden bzw. Arbeitstage das nach Abzug von Urlaub und Feiertagen ungefähr entspricht.
 
