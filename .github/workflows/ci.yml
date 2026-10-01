@@ -15,10 +15,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history, so the version check can diff against the base branch.
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+      - name: Version erhöht?
+        run: node scripts/check-version-bump.mjs origin/${{ github.base_ref }}
       - run: npm ci
       - run: npm test
       - run: npm run typecheck

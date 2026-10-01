@@ -39,6 +39,17 @@ npm run build      # statisches Build nach dist/
 
 Das Build nutzt `base: "./"` und läuft dadurch auf jedem statischen Hosting, auch unter einem Unterpfad.
 
+### Versionierung
+
+Die App zeigt unten ihre Version und den Commit-Hash des Builds an, z. B. „Version 0.2.0 (540fcca)“. Der Hash wird bei jedem Build automatisch eingesetzt. Die Versionsnummer kommt aus `package.json` und muss bei jeder Änderung an der App erhöht werden:
+
+```bash
+npm version patch --no-git-tag-version   # Fehlerbehebung: 0.2.0 → 0.2.1
+npm version minor --no-git-tag-version   # neue Funktion:  0.2.0 → 0.3.0
+```
+
+Die CI lässt Pull Requests fehlschlagen, wenn sich die App ändert, die Version aber nicht (reine Doku- und CI-Änderungen sind ausgenommen).
+
 ## Aufbau
 
 - `src/lib/`: reine Berechnungslogik ohne React, mit Tests (Feiertage, Lohn, Formatierung, Validierung, Speicher)

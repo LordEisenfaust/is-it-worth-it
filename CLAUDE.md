@@ -55,6 +55,7 @@ Für das Jahr der Berechnung wird das aktuelle Kalenderjahr verwendet.
 - Eingaben validieren (keine negativen oder leeren Werte, Division durch null abfangen)
 - Barrierefrei: Labels an Formularfeldern, ausreichender Kontrast in beiden Themes
 - Vor jedem Abschluss: `npm test`, `npm run typecheck`, `npm run build`
+- Versionierung: Jede Änderung an der App (alles außer `*.md`, `docs/`, `.github/`) erhöht die Version in `package.json` (`npm version patch --no-git-tag-version` für Fehlerbehebungen, `minor` für neue Funktionen). Die CI prüft das per `scripts/check-version-bump.mjs`. Version und Commit-Hash werden beim Build eingesetzt und unten in der App angezeigt.
 
 ## Offene Punkte
 
