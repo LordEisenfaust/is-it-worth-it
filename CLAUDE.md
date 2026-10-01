@@ -57,4 +57,10 @@ Für das Jahr der Berechnung wird das aktuelle Kalenderjahr verwendet.
 
 ## Offene Punkte
 
-- Feiertagstabelle pro Bundesland stichprobenartig gegen eine verlässliche Quelle prüfen
+- Keine.
+
+## Erledigt
+
+- Feiertagstabelle geprüft (Oktober 2026): Abgleich aller 16 Bundesländer für 2020–2030 gegen die Bibliotheken `feiertagejs` (keine Abweichung) und `date-holidays` (nur bewusste Abweichungen):
+  - Berliner Einmalfeiertage (8. Mai 2020/2025, 17. Juni 2028) werden bewusst nicht berücksichtigt („normaler Zustand“).
+  - Mariä Himmelfahrt zählt in Bayern bewusst landesweit, obwohl er nur in überwiegend katholischen Gemeinden gilt (trifft auf den Großteil Bayerns zu).
