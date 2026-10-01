@@ -7,6 +7,8 @@ Version 0.3.6 (abc1234) · [GitHub-Logo]
 Vibecoded with ♥️ by Claude Opus 5.5 – <zufälliger Spruch>
 ```
 
+Der Modellname im Präfix steht nur in der Konstante `MODEL` in `src/i18n/de.ts`.
+
 Bei jedem Seitenaufruf wird einer der folgenden 40 Sprüche zufällig gewählt (`footer.quips` im Textkatalog `src/i18n/de.ts`). Gespeichert wird dabei nichts.
 Jeder Spruch setzt das Präfix mit Claude als Satzsubjekt fort; neue Sprüche müssen das auch tun.
 
