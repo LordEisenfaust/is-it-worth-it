@@ -39,6 +39,14 @@ test("Erststart zeigt die Einstellungen, danach rechnet der Rechner in vier Stuf
     await amount.fill(c.value);
     await expect(result(page)).toContainText(c.text);
     await expect(result(page)).toHaveClass(new RegExp(`level-${c.level}`));
+    // The grey line (amount and exact hours) only appears from a working day on; small amounts need no extra line.
+    const grey = result(page).locator("p.muted");
+    if (c.level >= 3) {
+      await expect(grey).toHaveCount(1);
+      await expect(grey).toContainText(t.verdict.detail(""));
+    } else {
+      await expect(grey).toHaveCount(0);
+    }
   }
   await expect(result(page)).toContainText(t.verdict.level4Comment("2 Wochen und 2 Tage"));
 
