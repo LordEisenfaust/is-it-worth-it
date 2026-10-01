@@ -1,7 +1,7 @@
 import { readdirSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import type { Plugin } from "vite";
-import { de as t } from "../src/i18n/de";
+import { de as t } from "../src/i18n/de.ts";
 
 /** Public address of the live app. Link previews need absolute URLs; update this if the app moves. */
 export const SITE_URL = "https://lohnt.es/";
