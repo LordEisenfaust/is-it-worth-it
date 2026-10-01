@@ -3,8 +3,8 @@
 Unten in der App steht in zwei Zeilen:
 
 ```
+Version 0.3.6 (abc1234) · [GitHub-Logo]
 Vibecoded with ♥️ by Claude Opus 5.5 – <zufälliger Spruch>
-Version 0.3.0 (abc1234)
 ```
 
 Bei jedem Seitenaufruf wird einer der folgenden 40 Sprüche zufällig gewählt (`src/lib/quips.ts`). Gespeichert wird dabei nichts.
