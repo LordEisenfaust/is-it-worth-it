@@ -1,45 +1,62 @@
+/* Colors follow the personal brand design system ("Mein persönlicher Brand"): graphite surfaces,
+   orange only for the primary action, anthracite for selected states. */
 :root {
   color-scheme: light;
-  --bg: #f4f5f7;
+  --bg: #f4f4f2;
   --surface: #ffffff;
-  --border: #c9ced6;
-  --text: #1a1d23;
-  --muted: #4b5563;
-  --accent: #1d4ed8;
-  --accent-text: #ffffff;
+  --surface-alt: #e6e7e5;
+  --line: #d3d6d5;
+  --border: #7f878a;
+  --text: #1f2527;
+  --muted: #596265;
+  --brand: #293133;
+  --on-brand: #ffffff;
+  --accent: #f26b1d;
+  --accent-text: #1f2527;
+  --accent-strong: #a3440b;
   --error: #b42318;
   --danger: #b42318;
-  --focus: #1d4ed8;
+  --focus: #a3440b;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg: #0f1218;
-    --surface: #181c24;
-    --border: #3a4252;
-    --text: #e6e8ec;
-    --muted: #a8afbd;
-    --accent: #8fb0ff;
-    --accent-text: #0b1020;
-    --error: #ff9a90;
-    --danger: #ff9a90;
-    --focus: #8fb0ff;
+    --bg: #121516;
+    --surface: #1f2527;
+    --surface-alt: #293133;
+    --line: #353e41;
+    --border: #6f787b;
+    --text: #eef0ef;
+    --muted: #a3abad;
+    --brand: #343d40;
+    --on-brand: #eef0ef;
+    --accent: #ff7a2e;
+    --accent-text: #121516;
+    --accent-strong: #ff9a5c;
+    --error: #ff8a80;
+    --danger: #ff8a80;
+    --focus: #ff9a5c;
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #0f1218;
-  --surface: #181c24;
-  --border: #3a4252;
-  --text: #e6e8ec;
-  --muted: #a8afbd;
-  --accent: #8fb0ff;
-  --accent-text: #0b1020;
-  --error: #ff9a90;
-  --danger: #ff9a90;
-  --focus: #8fb0ff;
+  --bg: #121516;
+  --surface: #1f2527;
+  --surface-alt: #293133;
+  --line: #353e41;
+  --border: #6f787b;
+  --text: #eef0ef;
+  --muted: #a3abad;
+  --brand: #343d40;
+  --on-brand: #eef0ef;
+  --accent: #ff7a2e;
+  --accent-text: #121516;
+  --accent-strong: #ff9a5c;
+  --error: #ff8a80;
+  --danger: #ff8a80;
+  --focus: #ff9a5c;
 }
 
 * {
@@ -109,7 +126,7 @@ p {
 
 .card {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   border-radius: 0.75rem;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -150,7 +167,7 @@ input[type="text"][aria-invalid="true"] {
 
 input[type="range"] {
   width: 100%;
-  accent-color: var(--accent);
+  accent-color: var(--accent-strong);
 }
 
 :focus-visible {
@@ -176,7 +193,8 @@ button:disabled {
 
 button.secondary {
   background: transparent;
-  color: var(--accent);
+  color: var(--accent-strong);
+  border-color: var(--accent-strong);
 }
 
 button.danger {
@@ -189,8 +207,8 @@ button.danger {
   margin: 0 0 1rem;
   padding: 0.75rem;
   border-radius: 0.5rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  border: 1px solid var(--line);
 }
 
 .result p:last-child {
@@ -257,9 +275,9 @@ button.danger {
 }
 
 .segmented input:checked + span {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-text);
+  background: var(--brand);
+  border-color: var(--text);
+  color: var(--on-brand);
 }
 
 .segmented input:focus-visible + span {
@@ -299,9 +317,9 @@ button.danger {
 }
 
 .day input:checked + span {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-text);
+  background: var(--brand);
+  border-color: var(--text);
+  color: var(--on-brand);
 }
 
 .day input:focus-visible + span {
@@ -312,7 +330,7 @@ button.danger {
 .summary {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--line);
 }
 
 .summary dl {
@@ -341,7 +359,7 @@ button.danger {
 
 .history li {
   padding: 0.6rem 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--line);
 }
 
 .history li:last-child {
