@@ -64,3 +64,19 @@ describe("hoursForAmount", () => {
     expect(hoursForAmount(600, Infinity)).toBeNaN();
   });
 });
+
+describe("computeWage – Feiertagsliste", () => {
+  it("führt alle Feiertage auf und markiert die auf freien Tagen (NRW 2026, Mo–Fr)", () => {
+    const info = wage({ state: "NW" });
+    expect(info.allHolidays).toHaveLength(11);
+    expect(info.holidaysOnWorkdays).toHaveLength(8);
+    const off = info.allHolidays.filter((h) => !h.onWorkday).map((h) => h.name);
+    expect(off).toEqual(["Tag der Deutschen Einheit", "Allerheiligen", "2. Weihnachtstag"]);
+  });
+
+  it("zählt einen Wochenendfeiertag mit, wenn der Tag als Arbeitstag gewählt ist", () => {
+    const info = wage({ state: "NW", workdays: [1, 2, 3, 4, 5, 6] });
+    expect(info.allHolidays.filter((h) => !h.onWorkday).map((h) => h.name)).toEqual(["Allerheiligen"]);
+    expect(info.holidaysOnWorkdays).toHaveLength(10);
+  });
+});
