@@ -35,6 +35,7 @@ export const de = {
     title: "Rechner",
     amountLabel: "Betrag in Euro",
     amountPlaceholder: "z. B. 1599 für ein neues Handy",
+    amountUnit: "€",
     settingsMissing: "Bitte zuerst die Gehaltsdaten in den Einstellungen vollständig und gültig ausfüllen.",
     /** Shown while no amount is entered; one at random per page load. */
     emptyPrompts: [

@@ -26,6 +26,7 @@ test("Erststart zeigt die Einstellungen, danach rechnet der Rechner in vier Stuf
   await setUpSalary(page);
   await expect(page.getByRole("heading", { name: t.settings.title })).toBeHidden();
   expect(t.calculator.emptyPrompts).toContain(await result(page).innerText());
+  await expect(page.locator(".input-affix .affix")).toHaveText(t.calculator.amountUnit);
 
   const amount = page.getByLabel(t.calculator.amountLabel);
   const cases = [

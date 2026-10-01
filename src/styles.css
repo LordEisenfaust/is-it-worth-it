@@ -168,6 +168,24 @@ input[type="text"][aria-invalid="true"] {
   border-color: var(--error);
 }
 
+/* Unit sign inside the right edge of a text field; clicks fall through to the input. */
+.input-affix {
+  position: relative;
+}
+
+.input-affix input[type="text"] {
+  padding-right: 2.2rem;
+}
+
+.input-affix .affix {
+  position: absolute;
+  top: 50%;
+  right: 0.8rem;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
 input[type="range"] {
   width: 100%;
   accent-color: var(--accent-strong);
