@@ -37,6 +37,36 @@ export function saveJson(key: string, value: unknown, store: KeyValueStore | nul
   }
 }
 
+/** JSON with object keys sorted, so equal values compare equal regardless of key order. */
+function stableJson(value: unknown): string {
+  return JSON.stringify(value, (_key, v: unknown) =>
+    v && typeof v === "object" && !Array.isArray(v)
+      ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => a.localeCompare(b)))
+      : v,
+  );
+}
+
+/**
+ * Saves the value, or removes the key when the value equals the default.
+ * A missing key loads as the default anyway, so nothing is lost — and after
+ * "delete all data" the reset defaults are not written straight back.
+ */
+export function saveUnlessDefault(
+  key: string,
+  value: unknown,
+  defaultValue: unknown,
+  store: KeyValueStore | null = browserStore(),
+): boolean {
+  if (stableJson(value) !== stableJson(defaultValue)) return saveJson(key, value, store);
+  try {
+    if (!store) return false;
+    store.removeItem(key);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Removes every key with the app prefix and leaves foreign keys alone. */
 export function clearAll(store: KeyValueStore | null = browserStore()): void {
   if (!store) return;
