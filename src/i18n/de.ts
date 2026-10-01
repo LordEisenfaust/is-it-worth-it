@@ -10,6 +10,11 @@ export const de = {
     /** Also in the <title> of index.html, keep both in sync. */
     title: "Lohnt sich's?",
     tagline: "Der Rechner, den dein Warenkorb hasst.",
+    /** Search engines and link previews (WhatsApp, Signal, …). */
+    description: "Rechnet Einkäufe in deine Arbeitszeit um. Frech, ehrlich und nur lokal in deinem Browser.",
+    /** Small line in the link preview image. */
+    previewSubline: "Wie lange schuftest du dafür eigentlich?",
+    previewAlt: "Sanduhr-Symbol mit dem Schriftzug „Lohnt sich's? Der Rechner, den dein Warenkorb hasst.“",
     navLabel: "Bereiche",
     navCalculator: "Rechner",
     navSettings: "Einstellungen",

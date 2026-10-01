@@ -3,12 +3,15 @@ import { join, relative } from "node:path";
 import type { Plugin } from "vite";
 import { de as t } from "../src/i18n/de";
 
+/** Public address of the live app. Link previews need absolute URLs; update this if the app moves. */
+export const SITE_URL = "https://lordeisenfaust.github.io/is-it-worth-it/";
 const BACKGROUND = "#f4f4f2";
 const THEME = "#f26b1d";
 
 /**
  * Makes the build an installable, offline-capable app (PWA), without extra libraries:
  * - emits manifest.webmanifest (texts from the catalog) and links it plus the Apple icon in index.html,
+ * - adds a description and link preview tags (Open Graph) for messengers and social networks,
  * - writes sw.js after the build with every file of dist/ in its precache list.
  * The cache name contains version and commit, so each deploy replaces the old cache.
  */
@@ -21,9 +24,22 @@ export function pwa(options: { version: string; commit: string }): Plugin {
       outDir = config.build.outDir;
     },
     transformIndexHtml() {
+      const meta = (attrs: Record<string, string>) => ({ tag: "meta", attrs, injectTo: "head" as const });
       return [
         { tag: "link", attrs: { rel: "manifest", href: "./manifest.webmanifest" }, injectTo: "head" },
         { tag: "link", attrs: { rel: "apple-touch-icon", href: "./apple-touch-icon.png" }, injectTo: "head" },
+        meta({ name: "description", content: t.app.description }),
+        // Link previews (Open Graph, also read by WhatsApp, Signal, Slack, LinkedIn, …).
+        meta({ property: "og:type", content: "website" }),
+        meta({ property: "og:locale", content: "de_DE" }),
+        meta({ property: "og:url", content: SITE_URL }),
+        meta({ property: "og:title", content: t.app.title }),
+        meta({ property: "og:description", content: t.app.tagline }),
+        meta({ property: "og:image", content: `${SITE_URL}og-image.png` }),
+        meta({ property: "og:image:width", content: "1200" }),
+        meta({ property: "og:image:height", content: "630" }),
+        meta({ property: "og:image:alt", content: t.app.previewAlt }),
+        meta({ name: "twitter:card", content: "summary_large_image" }),
       ];
     },
     generateBundle() {
@@ -46,7 +62,8 @@ export function pwa(options: { version: string; commit: string }): Plugin {
       this.emitFile({ type: "asset", fileName: "manifest.webmanifest", source: JSON.stringify(manifest, null, 2) });
     },
     closeBundle() {
-      const files = listFiles(outDir).filter((file) => file !== "sw.js");
+      // The link preview image is only fetched by messengers, never by the app itself.
+      const files = listFiles(outDir).filter((file) => file !== "sw.js" && file !== "og-image.png");
       const cacheName = `iiwi-${options.version}-${options.commit}`;
       writeFileSync(join(outDir, "sw.js"), serviceWorker(cacheName, ["./", ...files]));
     },
