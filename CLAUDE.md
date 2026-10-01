@@ -28,7 +28,7 @@ Sprache der Oberfläche: Deutsch. Code und Kommentare: Englisch oder Deutsch, ab
    - Eingabe eines Eurobetrags
    - Ausgabe als Arbeitszeit, Einheit je nach Größe automatisch, immer in höchstens zwei ganzen Einheiten: Minuten; Stunden und Minuten; Tage und Stunden (z. B. „6 Tage und 1 Stunde“)
    - Ton der Ausgabe: „frech“, steigert sich mit dem Betrag (Vorschlag C). Alle drei Varianten (A, B, C) stehen in `docs/ausgabe-varianten.md`, damit später umentschieden werden kann.
-   - Fußzeile: oben die Version mit verlinktem Commit-Hash und GitHub-Logo als Link zum Repository (ohne Text, mit `aria-label`; Inline-SVG, nichts wird von GitHub geladen), darunter „Vibecoded with ♥️ by Claude Opus 5.5 – <Spruch>“, Spruch zufällig aus 40 (`src/lib/quips.ts`, Liste in `docs/footer-sprueche.md`)
+   - Fußzeile: oben die Version mit verlinktem Commit-Hash und GitHub-Logo als Link zum Repository (ohne Text, mit `aria-label`; Inline-SVG, nichts wird von GitHub geladen), darunter „Vibecoded with ♥️ by Claude Opus 5.5 – <Spruch>“, Spruch zufällig aus 40 (im Textkatalog `src/i18n/de.ts`, Liste auch in `docs/footer-sprueche.md`)
 3. **Dunkelmodus**
    - Folgt dem System, zusätzlich manuell umschaltbar, Auswahl wird gespeichert
 4. **Datenschutz**
@@ -58,6 +58,7 @@ Für das Jahr der Berechnung wird das aktuelle Kalenderjahr verwendet.
 - Eingaben validieren (keine negativen oder leeren Werte, Division durch null abfangen)
 - Barrierefrei: Labels an Formularfeldern, ausreichender Kontrast in beiden Themes
 - Vor jedem Abschluss: `npm test`, `npm run typecheck`, `npm run build`
+- Texte: Alle sichtbaren Texte stehen ausschließlich im Textkatalog `src/i18n/de.ts` (Zugriff über `t` aus `src/i18n`), nie direkt in Komponenten oder `src/lib/`. Ausnahme: `<title>` in `index.html` (vor dem JavaScript nötig), bei Namensänderung mitpflegen. Eine weitere Sprache bräuchte nur eine Datei mit derselben Form (`Texts`-Typ); Hinweis: die Betragseingabe liest „1.599“ als 1599 (deutsches Format) und müsste dann sprachabhängig werden.
 - Versionierung: Jede Änderung an der App (alles außer `*.md`, `docs/`, `.github/`) erhöht die Version in `package.json` (`npm version patch --no-git-tag-version` für Fehlerbehebungen, `minor` für neue Funktionen). Die CI prüft das per `scripts/check-version-bump.mjs`. Version und Commit-Hash werden beim Build eingesetzt und unten in der App angezeigt.
 
 ## Offene Punkte

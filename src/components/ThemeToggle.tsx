@@ -1,6 +1,7 @@
+import { t } from "../i18n";
 import { THEME_CHOICES, type ThemeChoice } from "../lib/theme";
 
-const LABELS: Record<ThemeChoice, string> = { system: "System", light: "Hell", dark: "Dunkel" };
+const LABELS: Record<ThemeChoice, string> = { system: t.theme.system, light: t.theme.light, dark: t.theme.dark };
 
 interface Props {
   value: ThemeChoice;
@@ -10,7 +11,7 @@ interface Props {
 export function ThemeToggle({ value, onChange }: Props) {
   return (
     <fieldset className="segmented">
-      <legend>Darstellung</legend>
+      <legend>{t.theme.legend}</legend>
       {THEME_CHOICES.map((choice) => (
         <label key={choice}>
           <input

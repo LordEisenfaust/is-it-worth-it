@@ -56,6 +56,7 @@ Die CI lässt Pull Requests fehlschlagen, wenn sich die App ändert, die Version
 ## Aufbau
 
 - `src/lib/`: reine Berechnungslogik ohne React, mit Tests (Feiertage, Lohn, Formatierung, Validierung, Speicher)
+- `src/i18n/de.ts`: Textkatalog mit allen sichtbaren Texten der App (Oberfläche, Fehlermeldungen, Sprüche, Feiertage)
 - `src/components/`: React-Komponenten der Oberfläche
 - `src/App.tsx`: Zustand und Zusammenspiel der Komponenten
 

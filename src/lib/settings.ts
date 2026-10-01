@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { isStateCode, type StateCode } from "./holidays";
 import { parseNumber } from "./parse";
 
@@ -54,33 +55,34 @@ export function validateDraft(draft: SettingsDraft): ValidationResult {
   const errors: ValidationResult["errors"] = {};
 
   const net = parseNumber(draft.net);
-  const netLabel = draft.mode === "monthly" ? "Monatsnetto" : "Jahresnetto";
-  if (draft.net.trim() === "") errors.net = `Bitte ${netLabel} eingeben.`;
-  else if (!Number.isFinite(net) || net <= 0) errors.net = `${netLabel} muss eine Zahl größer als 0 sein.`;
-  else if (net > 1e9) errors.net = `${netLabel} ist zu groß.`;
+  const v = t.validation;
+  const netLabel = draft.mode === "monthly" ? t.settings.monthly : t.settings.yearly;
+  if (draft.net.trim() === "") errors.net = v.netMissing(netLabel);
+  else if (!Number.isFinite(net) || net <= 0) errors.net = v.netInvalid(netLabel);
+  else if (net > 1e9) errors.net = v.netTooLarge(netLabel);
 
   const months = draft.monthsPerYear;
   if (!Number.isInteger(months) || months < MIN_MONTHS || months > MAX_MONTHS) {
-    errors.monthsPerYear = `Die Anzahl der Monatsgehälter muss zwischen ${MIN_MONTHS} und ${MAX_MONTHS} liegen.`;
+    errors.monthsPerYear = v.monthsOutOfRange(MIN_MONTHS, MAX_MONTHS);
   }
 
   const weeklyHours = parseNumber(draft.weeklyHours);
-  if (draft.weeklyHours.trim() === "") errors.weeklyHours = "Bitte Wochenstunden eingeben.";
+  if (draft.weeklyHours.trim() === "") errors.weeklyHours = v.weeklyHoursMissing;
   else if (!Number.isFinite(weeklyHours) || weeklyHours <= 0) {
-    errors.weeklyHours = "Wochenstunden müssen eine Zahl größer als 0 sein.";
-  } else if (weeklyHours > 168) errors.weeklyHours = "Eine Woche hat nur 168 Stunden.";
+    errors.weeklyHours = v.weeklyHoursInvalid;
+  } else if (weeklyHours > 168) errors.weeklyHours = v.weeklyHoursTooMany;
 
   const workdays = [...new Set(draft.workdays)].filter((d) => Number.isInteger(d) && d >= 0 && d <= 6);
-  if (workdays.length === 0) errors.workdays = "Bitte mindestens einen Arbeitstag wählen.";
+  if (workdays.length === 0) errors.workdays = v.workdaysMissing;
   else if (!errors.weeklyHours && weeklyHours / workdays.length > 24) {
-    errors.weeklyHours = "Das ergäbe mehr als 24 Stunden pro Arbeitstag – bitte Wochenstunden oder Arbeitstage prüfen.";
+    errors.weeklyHours = v.hoursPerDayTooMany;
   }
 
   const vacationDays = parseNumber(draft.vacationDays);
-  if (draft.vacationDays.trim() === "") errors.vacationDays = "Bitte Urlaubstage eingeben (0 ist erlaubt).";
+  if (draft.vacationDays.trim() === "") errors.vacationDays = v.vacationMissing;
   else if (!Number.isInteger(vacationDays) || vacationDays < 0) {
-    errors.vacationDays = "Urlaubstage müssen eine ganze Zahl von mindestens 0 sein.";
-  } else if (vacationDays > 366) errors.vacationDays = "Ein Jahr hat nicht mehr als 366 Tage.";
+    errors.vacationDays = v.vacationInvalid;
+  } else if (vacationDays > 366) errors.vacationDays = v.vacationTooMany;
 
   if (Object.keys(errors).length > 0) return { settings: null, errors };
 

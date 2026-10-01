@@ -1,3 +1,5 @@
+import { t } from "../i18n";
+
 const GERMAN_NUMBER = /^\d{1,3}(\.\d{3})+(,\d+)?$|^\d+(,\d+)?$/;
 const PLAIN_NUMBER = /^\d+(\.\d+)?$/;
 
@@ -16,10 +18,10 @@ export function parseNumber(input: string): number {
 export type AmountResult = { ok: true; amount: number } | { ok: false; error: string };
 
 export function parseAmount(input: string): AmountResult {
-  if (input.trim() === "") return { ok: false, error: "Bitte einen Betrag eingeben." };
+  if (input.trim() === "") return { ok: false, error: t.validation.amountMissing };
   const amount = parseNumber(input);
-  if (!Number.isFinite(amount)) return { ok: false, error: "Bitte eine gültige, nicht negative Zahl eingeben." };
-  if (amount <= 0) return { ok: false, error: "Der Betrag muss größer als 0 sein." };
-  if (amount > 1e12) return { ok: false, error: "Der Betrag ist zu groß." };
+  if (!Number.isFinite(amount)) return { ok: false, error: t.validation.amountInvalid };
+  if (amount <= 0) return { ok: false, error: t.validation.amountZero };
+  if (amount > 1e12) return { ok: false, error: t.validation.amountTooLarge };
   return { ok: true, amount };
 }

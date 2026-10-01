@@ -1,7 +1,9 @@
+import { t } from "../i18n";
+
 export type TimeUnit = "minutes" | "hours" | "days";
 
-const number = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 1 });
-const euro = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" });
+const number = new Intl.NumberFormat(t.locale, { maximumFractionDigits: 1 });
+const euro = new Intl.NumberFormat(t.locale, { style: "currency", currency: "EUR" });
 
 export function formatEuro(value: number): string {
   return euro.format(value);
@@ -15,13 +17,10 @@ function count(value: number, singular: string, plural: string): string {
 /** "6 Tage und 1 Stunde"; the smaller unit is left out when it is zero. */
 function pair(big: number, bigWords: [string, string], small: number, smallWords: [string, string]): string {
   const head = count(big, ...bigWords);
-  return small === 0 ? head : `${head} und ${count(small, ...smallWords)}`;
+  return small === 0 ? head : `${head} ${t.units.and} ${count(small, ...smallWords)}`;
 }
 
-const MINUTE: [string, string] = ["Minute", "Minuten"];
-const HOUR: [string, string] = ["Stunde", "Stunden"];
-const DAY: [string, string] = ["Tag", "Tage"];
-const WEEK: [string, string] = ["Woche", "Wochen"];
+const { minute: MINUTE, hour: HOUR, day: DAY, week: WEEK } = t.units;
 
 export interface WorkTimeParts {
   unit: TimeUnit;

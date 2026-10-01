@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { countWeekdaysInYear } from "./dates";
 import { getHolidays, type Holiday } from "./holidays";
 import { annualNet, type Settings } from "./settings";
@@ -18,7 +19,7 @@ export interface WageInfo {
 export type WageResult = { ok: true; info: WageInfo } | { ok: false; error: string };
 
 export function computeWage(settings: Settings, year: number): WageResult {
-  if (settings.workdays.length === 0) return { ok: false, error: "Es ist kein Arbeitstag gewählt." };
+  if (settings.workdays.length === 0) return { ok: false, error: t.validation.noWorkday };
 
   const allHolidays = getHolidays(year, settings.state).map((h) => ({
     ...h,
@@ -28,14 +29,14 @@ export function computeWage(settings: Settings, year: number): WageResult {
   const workingDaysPerYear =
     countWeekdaysInYear(year, settings.workdays) - holidaysOnWorkdays.length - settings.vacationDays;
   if (workingDaysPerYear <= 0) {
-    return { ok: false, error: "Mit diesen Urlaubstagen bleibt kein Arbeitstag im Jahr übrig." };
+    return { ok: false, error: t.validation.noWorkingDaysLeft };
   }
 
   const hoursPerDay = settings.weeklyHours / settings.workdays.length;
   const net = annualNet(settings);
   const hourlyWage = net / (workingDaysPerYear * hoursPerDay);
   if (!Number.isFinite(hourlyWage) || hourlyWage <= 0) {
-    return { ok: false, error: "Der Stundenlohn lässt sich mit diesen Angaben nicht berechnen." };
+    return { ok: false, error: t.validation.wageNotComputable };
   }
 
   return {

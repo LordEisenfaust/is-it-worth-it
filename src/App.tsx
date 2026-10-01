@@ -4,6 +4,7 @@ import { GitHubIcon } from "./components/GitHubIcon";
 import { PrivacyPanel } from "./components/PrivacyPanel";
 import { SettingsForm } from "./components/SettingsForm";
 import { ThemeToggle } from "./components/ThemeToggle";
+import { t } from "./i18n";
 import { computeWage } from "./lib/calc";
 import { CREDIT_PREFIX, pickQuip } from "./lib/quips";
 import { commitUrl, REPO_URL } from "./lib/repo";
@@ -55,20 +56,20 @@ export function App() {
     <>
       <header className="app-header">
         <div>
-          <h1>Lohnt sich's?</h1>
-          <p className="muted">Der Rechner, den dein Warenkorb hasst.</p>
+          <h1>{t.app.title}</h1>
+          <p className="muted">{t.app.tagline}</p>
         </div>
         <ThemeToggle value={theme} onChange={setTheme} />
       </header>
 
-      <nav className="view-nav" aria-label="Bereiche">
+      <nav className="view-nav" aria-label={t.app.navLabel}>
         <button
           type="button"
           className={view === "calculator" ? undefined : "secondary"}
           aria-current={view === "calculator" ? "page" : undefined}
           onClick={() => setView("calculator")}
         >
-          Rechner
+          {t.app.navCalculator}
         </button>
         <button
           type="button"
@@ -76,7 +77,7 @@ export function App() {
           aria-current={view === "settings" ? "page" : undefined}
           onClick={() => setView("settings")}
         >
-          Einstellungen
+          {t.app.navSettings}
         </button>
       </nav>
 
@@ -97,20 +98,20 @@ export function App() {
         )}
       </main>
       {view === "calculator" && (
-        <footer className="muted">Alle Angaben bleiben lokal in deinem Browser. Details unter „Einstellungen“.</footer>
+        <footer className="muted">{t.app.privacyFooter}</footer>
       )}
       <div className="app-meta">
         <p>
-          Version {__APP_VERSION__} (
+          {t.app.version} {__APP_VERSION__} (
           {commitLink ? (
-            <a href={commitLink} target="_blank" rel="noopener noreferrer" title="Diesen Stand auf GitHub ansehen">
+            <a href={commitLink} target="_blank" rel="noopener noreferrer" title={t.app.commitTitle}>
               {__APP_COMMIT__}
             </a>
           ) : (
             __APP_COMMIT__
           )}
           ) ·{" "}
-          <a href={REPO_URL} target="_blank" rel="noopener noreferrer" aria-label="Quellcode auf GitHub" title="Quellcode auf GitHub">
+          <a href={REPO_URL} target="_blank" rel="noopener noreferrer" aria-label={t.app.repoLabel} title={t.app.repoLabel}>
             <GitHubIcon />
           </a>
         </p>
