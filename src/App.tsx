@@ -86,7 +86,9 @@ export function App() {
           </div>
         )}
       </main>
-      <footer className="muted">Alle Angaben bleiben lokal in deinem Browser. Details unter „Einstellungen“.</footer>
+      {view === "calculator" && (
+        <footer className="muted">Alle Angaben bleiben lokal in deinem Browser. Details unter „Einstellungen“.</footer>
+      )}
     </>
   );
 }
