@@ -48,7 +48,7 @@ export function App() {
       <header className="app-header">
         <div>
           <h1>Is it worth it?</h1>
-          <p className="muted">Was kostet ein Kauf in Arbeitszeit?</p>
+          <p className="muted">Ist es das wirklich wert? Finden wir es heraus?</p>
         </div>
         <div className="header-actions">
           <ThemeToggle value={theme} onChange={setTheme} />
