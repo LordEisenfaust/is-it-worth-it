@@ -35,17 +35,23 @@ export function Calculator({ wage, settingsInvalid, workdaysPerWeek }: Props) {
       <form onSubmit={(e) => e.preventDefault()}>
         <div className="field">
           <label htmlFor="amount">{t.calculator.amountLabel}</label>
-          <input
-            id="amount"
-            type="text"
-            inputMode="decimal"
-            autoComplete="off"
-            placeholder={t.calculator.amountPlaceholder}
-            value={amountText}
-            onChange={(e) => setAmountText(e.target.value)}
-            aria-describedby="calc-status"
-            aria-invalid={amountText.trim() !== "" && !amount.ok}
-          />
+          <div className="input-affix">
+            <input
+              id="amount"
+              type="text"
+              inputMode="decimal"
+              autoComplete="off"
+              placeholder={t.calculator.amountPlaceholder}
+              value={amountText}
+              onChange={(e) => setAmountText(e.target.value)}
+              aria-describedby="calc-status"
+              aria-invalid={amountText.trim() !== "" && !amount.ok}
+            />
+            {/* Decorative: the label already says "in Euro". */}
+            <span className="affix" aria-hidden="true">
+              {t.calculator.amountUnit}
+            </span>
+          </div>
         </div>
 
         <div
