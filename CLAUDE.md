@@ -1,0 +1,62 @@
+# Is-it-Worth-it
+
+Web-Applikation, mit der man Einkäufe in Arbeitszeit verrechnen kann.
+Beispiel: Nutzer gibt 600 € ein, die App zeigt "Das entspricht ca. 4 Arbeitstagen" bzw. "32 Arbeitsstunden".
+
+Sprache der Oberfläche: Deutsch. Code und Kommentare: Englisch oder Deutsch, aber einheitlich (Vorschlag: Code Englisch, UI-Texte Deutsch).
+
+## Tech-Stack
+
+- React + Vite + TypeScript
+- Kein Backend, kein Login
+- Speicherung ausschließlich in localStorage (Schlüssel-Präfix `iiwi:`)
+- Tests mit Vitest für die Berechnungslogik
+- Statisches Build (`base: "./"`), soll sich überall hosten lassen
+
+## Funktionen der ersten Version
+
+1. **Einrichtung (Gehaltsdaten)**
+   - Umschalter: Jahresnetto oder Monatsnetto
+   - Bei Monatsnetto: Anzahl der Monatsgehälter pro Jahr per Slider (12 bis 16, ganze Schritte, Standard 12)
+   - Wochenstunden
+   - Frei wählbare Arbeitstage (Mo bis So), Standard Mo bis Fr
+   - Urlaubstage pro Jahr
+   - Bundesland (alle 16) für die Feiertage
+2. **Rechner**
+   - Eingabe eines Eurobetrags
+   - Ausgabe als Arbeitszeit, Einheit je nach Größe automatisch: Minuten, Stunden oder Arbeitstage
+3. **Verlauf**
+   - Letzte 20 Berechnungen (Betrag, Ergebnis, optional Bezeichnung), in localStorage
+4. **Dunkelmodus**
+   - Folgt dem System, zusätzlich manuell umschaltbar, Auswahl wird gespeichert
+5. **Datenschutz**
+   - Button, der alle gespeicherten Daten löscht
+   - Hinweis in der UI, dass alles nur lokal im Browser liegt
+
+## Berechnung
+
+- Jahresnetto = Monatsnetto × Anzahl Monatsgehälter (oder direkte Eingabe)
+- Jahresarbeitstage = Anzahl der gewählten Wochentage im Jahr − Feiertage, die auf einen gewählten Arbeitstag fallen − Urlaubstage
+- Stunden pro Arbeitstag = Wochenstunden / Anzahl gewählter Arbeitstage
+- Netto-Stundenlohn = Jahresnetto / (Jahresarbeitstage × Stunden pro Arbeitstag)
+- Arbeitszeit für einen Betrag = Betrag / Netto-Stundenlohn
+
+Für das Jahr der Berechnung wird das aktuelle Kalenderjahr verwendet.
+
+## Feiertage
+
+- Eigene, fest eingebaute Tabelle (keine externe API, keine Bibliothek)
+- Bewegliche Feiertage über die Osterformel (Gauß/Meeus) berechnen
+- Pro Bundesland die gesetzlichen Feiertage abbilden; Sonderfälle nur auf Landesebene (z. B. Mariä Himmelfahrt in Bayern, Fronleichnam, Buß- und Bettag in Sachsen)
+- Unit-Tests: Ostersonntag für mehrere Jahre, Feiertagsanzahl je Bundesland für ein Beispieljahr, Feiertag am Wochenende zählt nicht
+
+## Qualität
+
+- Berechnungslogik als reine Funktionen in `src/lib/`, ohne React-Abhängigkeit, mit Tests
+- Eingaben validieren (keine negativen oder leeren Werte, Division durch null abfangen)
+- Barrierefrei: Labels an Formularfeldern, ausreichender Kontrast in beiden Themes
+- Vor jedem Abschluss: `npm test`, `npm run typecheck`, `npm run build`
+
+## Offene Punkte
+
+- Feiertagstabelle pro Bundesland stichprobenartig gegen eine verlässliche Quelle prüfen

@@ -1,0 +1,353 @@
+:root {
+  color-scheme: light;
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --border: #c9ced6;
+  --text: #1a1d23;
+  --muted: #4b5563;
+  --accent: #1d4ed8;
+  --accent-text: #ffffff;
+  --error: #b42318;
+  --danger: #b42318;
+  --focus: #1d4ed8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0f1218;
+    --surface: #181c24;
+    --border: #3a4252;
+    --text: #e6e8ec;
+    --muted: #a8afbd;
+    --accent: #8fb0ff;
+    --accent-text: #0b1020;
+    --error: #ff9a90;
+    --danger: #ff9a90;
+    --focus: #8fb0ff;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f1218;
+  --surface: #181c24;
+  --border: #3a4252;
+  --text: #e6e8ec;
+  --muted: #a8afbd;
+  --accent: #8fb0ff;
+  --accent-text: #0b1020;
+  --error: #ff9a90;
+  --danger: #ff9a90;
+  --focus: #8fb0ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+#root {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 0.5rem;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 1.6rem;
+}
+
+h2 {
+  font-size: 1.2rem;
+}
+
+h3 {
+  font-size: 1rem;
+}
+
+p {
+  margin: 0 0 0.5rem;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.error {
+  color: var(--error);
+  min-height: 0;
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+}
+
+.error:empty {
+  display: none;
+}
+
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+label,
+legend {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+input[type="text"],
+select {
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  font: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+input[type="text"][aria-invalid="true"] {
+  border-color: var(--error);
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+button {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--accent);
+}
+
+button.danger {
+  background: transparent;
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.result {
+  margin: 0 0 1rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.result p:last-child {
+  margin-bottom: 0;
+}
+
+.result-primary {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Segmented radio group */
+.segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.segmented legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.segmented.wide {
+  display: flex;
+}
+
+.segmented label {
+  position: relative;
+  margin: 0;
+  flex: 1;
+}
+
+.segmented input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.segmented span {
+  display: block;
+  padding: 0.4rem 0.9rem;
+  text-align: center;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  margin-left: -1px;
+}
+
+.segmented label:first-of-type span {
+  border-radius: 0.5rem 0 0 0.5rem;
+  margin-left: 0;
+}
+
+.segmented label:last-of-type span {
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.segmented input:checked + span {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.segmented input:focus-visible + span {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Weekday checkboxes */
+.day-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.day {
+  position: relative;
+  margin: 0;
+}
+
+.day input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.day span {
+  display: block;
+  min-width: 2.6rem;
+  padding: 0.4rem 0.5rem;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+.day input:checked + span {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.day input:focus-visible + span {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.summary {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.summary dl {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.25rem 1rem;
+  margin: 0 0 0.75rem;
+}
+
+.summary dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+.summary ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.history {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.history li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.history li:last-child {
+  border-bottom: 0;
+}
+
+.history-main {
+  overflow-wrap: anywhere;
+}
