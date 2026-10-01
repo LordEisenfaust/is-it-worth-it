@@ -14,7 +14,9 @@ Eine kleine Web-App, die Einkäufe in Arbeitszeit umrechnet. Beispiel: Bei 600 �
 
 ## Datenschutz
 
-Es gibt kein Backend und keinen Login. Alle Eingaben werden ausschließlich im `localStorage` deines Browsers gespeichert (Schlüssel mit Präfix `iiwi:`) und nirgendwohin übertragen.
+Es gibt kein Backend und keinen Login. Alle Eingaben werden ausschließlich im `localStorage` deines Browsers gespeichert (Schlüssel mit Präfix `iiwi:`) und nirgendwohin übertragen. Es gibt kein Tracking und keine Analyse-Tools.
+
+Wie bei jeder Webseite sieht der Hoster (GitHub Pages) beim Aufruf technisch die IP-Adresse; die eingegebenen Daten erreichen ihn nicht.
 
 ## Berechnung
 
@@ -51,7 +53,11 @@ npm version patch --no-git-tag-version   # Fehlerbehebung: 0.2.0 → 0.2.1
 npm version minor --no-git-tag-version   # neue Funktion:  0.2.0 → 0.3.0
 ```
 
-Die CI lässt Pull Requests fehlschlagen, wenn sich die App ändert, die Version aber nicht (reine Doku- und CI-Änderungen sind ausgenommen).
+Die CI lässt Pull Requests fehlschlagen, wenn sich die App ändert, die Version aber nicht (reine Doku- und CI-Änderungen sind ausgenommen, ebenso Abhängigkeits-Updates von Dependabot).
+
+### Abhängigkeiten
+
+Dependabot schlägt einmal im Monat gebündelte Updates für npm-Pakete und GitHub Actions als Pull Request vor (`.github/dependabot.yml`). Diese PRs laufen durch Tests, Typecheck und Build und müssen von Hand gemergt werden.
 
 ## Aufbau
 

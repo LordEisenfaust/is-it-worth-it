@@ -14,15 +14,17 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # Full history, so the version check can diff against the base branch.
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
       - name: Version erhöht?
+        # Dependency updates from Dependabot change no app code of ours, so they need no new version.
+        if: github.actor != 'dependabot[bot]'
         run: node scripts/check-version-bump.mjs origin/${{ github.base_ref }}
       - run: npm ci
       - run: npm test

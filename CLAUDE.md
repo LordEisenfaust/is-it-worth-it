@@ -59,7 +59,7 @@ Für das Jahr der Berechnung wird das aktuelle Kalenderjahr verwendet.
 - Barrierefrei: Labels an Formularfeldern, ausreichender Kontrast in beiden Themes
 - Vor jedem Abschluss: `npm test`, `npm run typecheck`, `npm run build`
 - Texte: Alle sichtbaren Texte stehen ausschließlich im Textkatalog `src/i18n/de.ts` (Zugriff über `t` aus `src/i18n`), nie direkt in Komponenten oder `src/lib/`. Ausnahme: `<title>` in `index.html` (vor dem JavaScript nötig), bei Namensänderung mitpflegen. Eine weitere Sprache bräuchte nur eine Datei mit derselben Form (`Texts`-Typ); Hinweis: die Betragseingabe liest „1.599“ als 1599 (deutsches Format) und müsste dann sprachabhängig werden.
-- Versionierung: Jede Änderung an der App (alles außer `*.md`, `docs/`, `.github/`) erhöht die Version in `package.json` (`npm version patch --no-git-tag-version` für Fehlerbehebungen, `minor` für neue Funktionen). Die CI prüft das per `scripts/check-version-bump.mjs`. Version und Commit-Hash werden beim Build eingesetzt und unten in der App angezeigt.
+- Versionierung: Jede Änderung an der App (alles außer `*.md`, `docs/`, `.github/`) erhöht die Version in `package.json` (`npm version patch --no-git-tag-version` für Fehlerbehebungen, `minor` für neue Funktionen). Die CI prüft das per `scripts/check-version-bump.mjs` (ausgenommen PRs von Dependabot, das monatlich gebündelte Updates für npm und GitHub Actions vorschlägt). Version und Commit-Hash werden beim Build eingesetzt und unten in der App angezeigt.
 
 ## Offene Punkte
 
