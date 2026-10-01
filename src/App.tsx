@@ -52,8 +52,8 @@ export function App() {
     <>
       <header className="app-header">
         <div>
-          <h1>Is it worth it?</h1>
-          <p className="muted">Ist es das wirklich wert? Finden wir es heraus?</p>
+          <h1>Lohnt sich's?</h1>
+          <p className="muted">Der Rechner, den dein Warenkorb hasst.</p>
         </div>
         <ThemeToggle value={theme} onChange={setTheme} />
       </header>

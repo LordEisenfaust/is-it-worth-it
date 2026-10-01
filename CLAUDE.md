@@ -1,4 +1,6 @@
-# Is-it-Worth-it
+# Lohnt sich's? (Repository: is-it-worth-it)
+
+Name der App: „Lohnt sich's?“, Untertitel: „Der Rechner, den dein Warenkorb hasst.“ (früher „Is it worth it?“).
 
 Web-Applikation, mit der man Einkäufe in Arbeitszeit verrechnen kann.
 Beispiel: Nutzer gibt 600 € ein, die App zeigt "Das entspricht ca. 4 Arbeitstagen" bzw. "32 Arbeitsstunden".
