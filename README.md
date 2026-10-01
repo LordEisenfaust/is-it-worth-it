@@ -10,6 +10,7 @@ Eine kleine Web-App, die Einkäufe in Arbeitszeit umrechnet. Beispiel: Bei 600 �
 - **Rechner:** Betrag eingeben, das Ergebnis erscheint automatisch in zwei Einheiten (z. B. „3 Stunden und 48 Minuten“ oder „6 Tage und 1 Stunde“), mit einem frechen Kommentar, der mit dem Betrag schärfer wird
 - **Dunkelmodus:** folgt dem System und lässt sich manuell umschalten
 - **Als App installierbar und offline nutzbar (PWA):** im Browser „Zum Startbildschirm hinzufügen“ bzw. „Installieren“; nach dem ersten Besuch funktioniert die App auch ohne Netz
+- **Link-Vorschau:** Wird der Link in WhatsApp, Signal & Co. geteilt, erscheint eine Karte mit Bild, Titel und Untertitel
 - **Datenschutz:** ein Button löscht alle gespeicherten Daten
 - **Fußzeile:** Version und Commit-Hash, darunter bei jedem Aufruf ein anderer von 40 frechen Sprüchen
 
@@ -70,7 +71,7 @@ Dependabot schlägt einmal im Monat gebündelte Updates für npm-Pakete und GitH
 - `src/lib/`: reine Berechnungslogik ohne React, mit Tests (Feiertage, Lohn, Formatierung, Validierung, Speicher)
 - `src/i18n/de.ts`: Textkatalog mit allen sichtbaren Texten der App (Oberfläche, Fehlermeldungen, Sprüche, Feiertage)
 - `src/components/`: React-Komponenten der Oberfläche
-- `scripts/pwa-plugin.ts`: erzeugt beim Build Manifest und Service Worker (Offline-Betrieb); `scripts/render-icons.mjs` rendert die App-Symbole aus `scripts/icons/hourglass.svg.tpl`
+- `scripts/pwa-plugin.ts`: erzeugt beim Build Manifest und Service Worker (Offline-Betrieb); `scripts/render-icons.mjs` rendert die App-Symbole und das Vorschaubild `og-image.png` aus `scripts/icons/hourglass.svg.tpl` und dem Textkatalog
 - `src/App.tsx`: Zustand und Zusammenspiel der Komponenten
 
 ## Stand

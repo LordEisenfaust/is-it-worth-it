@@ -139,3 +139,16 @@ test("Funktioniert nach dem ersten Besuch auch offline", async ({ page, context 
   await expect(result(page)).toContainText(t.verdict.level3Headline("3 Tage und 6 Stunden"));
   await context.setOffline(false);
 });
+
+test("Hat eine Link-Vorschau für Messenger (Open Graph)", async ({ page, request }) => {
+  const meta = (selector: string) => page.locator(`meta[${selector}]`).getAttribute("content");
+  expect(await meta('name="description"')).toBe(t.app.description);
+  expect(await meta('property="og:title"')).toBe(t.app.title);
+  expect(await meta('property="og:description"')).toBe(t.app.tagline);
+  const image = await meta('property="og:image"');
+  expect(image).toMatch(/^https:\/\/.+\/og-image\.png$/);
+  // The tag points to the live site; the same file must exist in this build.
+  const response = await request.get("og-image.png");
+  expect(response.ok()).toBe(true);
+  expect(response.headers()["content-type"]).toBe("image/png");
+});
