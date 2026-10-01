@@ -62,6 +62,18 @@ test("Gehaltsdaten bleiben nach einem Reload erhalten, dann startet der Rechner"
   await expect(page.getByLabel(t.settings.netLabelMonthly)).toHaveValue("3000");
 });
 
+test("Das Nettofeld trägt in beiden Eingabearten ein Euro-Zeichen", async ({ page }) => {
+  // The calculator stays mounted (hidden) and has its own sign, so look only inside the settings panel.
+  const affix = page.locator("#settings-panel .input-affix .affix");
+  await expect(page.getByLabel(t.settings.netLabelMonthly)).toBeVisible();
+  await expect(affix).toHaveText(t.settings.netUnit);
+
+  // "Jahresnetto" also appears in the summary, so click the segmented control's label.
+  await page.locator(".segmented label", { hasText: t.settings.yearly }).click();
+  await expect(page.getByLabel(t.settings.netLabelYearly)).toBeVisible();
+  await expect(affix).toHaveText(t.settings.netUnit);
+});
+
 test("Ungültige Gehaltsdaten zeigen Fehler und einen Hinweis im Rechner", async ({ page }) => {
   const net = page.getByLabel(t.settings.netLabelMonthly);
   await net.fill("abc");

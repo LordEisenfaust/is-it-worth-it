@@ -2,6 +2,9 @@
 // Texts with variable parts are small functions. A future second language only needs a file with the same shape
 // (see the `Texts` type in ./index.ts), TypeScript then reports every missing text.
 
+/** Model named in the footer; the only place to change when the app is built with another one. */
+const MODEL = "Claude Opus 5.5";
+
 export const de = {
   /** Locale for number, currency and date formatting. */
   locale: "de-DE",
@@ -81,6 +84,7 @@ export const de = {
     yearly: "Jahresnetto",
     netLabelMonthly: "Monatsnetto in Euro",
     netLabelYearly: "Jahresnetto in Euro",
+    netUnit: "€",
     monthsLabel: "Monatsgehälter pro Jahr:",
     weeklyHoursLabel: "Wochenstunden",
     workdaysLegend: "Arbeitstage",
@@ -139,7 +143,7 @@ export const de = {
 
   footer: {
     /** Fixed start of the credit line; every quip continues it with Claude as the subject. */
-    creditPrefix: "Vibecoded with ♥️ by Claude Opus 5.5 –",
+    creditPrefix: `Vibecoded with ♥️ by ${MODEL} –`,
     /** One is shown at random on every page load (list also in docs/footer-sprueche.md). */
     quips: [
       // Rund ums Arbeiten

@@ -9,7 +9,8 @@ describe("Sprüche in der Fußzeile", () => {
   });
 
   it("endet das Präfix mit Claude als Satzsubjekt", () => {
-    expect(CREDIT_PREFIX).toBe("Vibecoded with ♥️ by Claude Opus 5.5 –");
+    // The model name itself is configured in one place (MODEL in src/i18n/de.ts), so it is not pinned here.
+    expect(CREDIT_PREFIX).toMatch(/^Vibecoded with ♥️ by Claude [^–]+ –$/);
   });
 
   it("wählt über den ganzen Bereich aus und bleibt in den Grenzen", () => {

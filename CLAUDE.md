@@ -31,7 +31,7 @@ Sprache der Oberfläche: Deutsch. Code und Kommentare: Englisch oder Deutsch, ab
    - Eingabe eines Eurobetrags
    - Ausgabe als Arbeitszeit, Einheit je nach Größe automatisch, immer in höchstens zwei ganzen Einheiten: Minuten; Stunden und Minuten; Tage und Stunden (z. B. „6 Tage und 1 Stunde“)
    - Ton der Ausgabe: „frech“, steigert sich mit dem Betrag (Vorschlag C). Alle drei Varianten (A, B, C) stehen in `docs/ausgabe-varianten.md`, damit später umentschieden werden kann.
-   - Fußzeile: oben die Version mit verlinktem Commit-Hash und GitHub-Logo als Link zum Repository (ohne Text, mit `aria-label`; Inline-SVG, nichts wird von GitHub geladen), darunter „Vibecoded with ♥️ by Claude Opus 5.5 – <Spruch>“, Spruch zufällig aus 40 (im Textkatalog `src/i18n/de.ts`, Liste auch in `docs/footer-sprueche.md`)
+   - Fußzeile: oben die Version mit verlinktem Commit-Hash und GitHub-Logo als Link zum Repository (ohne Text, mit `aria-label`; Inline-SVG, nichts wird von GitHub geladen), darunter „Vibecoded with ♥️ by Claude Opus 5.5 – <Spruch>“ (Modellname nur in der Konstante `MODEL` in `src/i18n/de.ts` ändern), Spruch zufällig aus 40 (im Textkatalog `src/i18n/de.ts`, Liste auch in `docs/footer-sprueche.md`)
 3. **Dunkelmodus**
    - Folgt dem System, zusätzlich manuell umschaltbar, Auswahl wird gespeichert
 4. **Datenschutz**

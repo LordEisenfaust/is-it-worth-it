@@ -65,17 +65,23 @@ export function SettingsForm({ draft, errors, wage, onChange }: Props) {
 
       <div className="field">
         <label htmlFor="net">{netLabel}</label>
-        <input
-          id="net"
-          type="text"
-          inputMode="decimal"
-          autoComplete="off"
-          value={draft.net}
-          onChange={(e) => set("net", e.target.value)}
-          onBlur={() => touch("net")}
-          aria-invalid={shown("net") !== undefined}
-          aria-describedby="net-error"
-        />
+        <div className="input-affix">
+          <input
+            id="net"
+            type="text"
+            inputMode="decimal"
+            autoComplete="off"
+            value={draft.net}
+            onChange={(e) => set("net", e.target.value)}
+            onBlur={() => touch("net")}
+            aria-invalid={shown("net") !== undefined}
+            aria-describedby="net-error"
+          />
+          {/* Decorative: the label already says "in Euro". */}
+          <span className="affix" aria-hidden="true">
+            {t.settings.netUnit}
+          </span>
+        </div>
         <p id="net-error" className="error">
           {shown("net")}
         </p>
