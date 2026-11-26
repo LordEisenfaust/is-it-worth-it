@@ -174,8 +174,8 @@ export function evaluateSettings(draft: SettingsDraft, year: number): SettingsOu
 }
 
 /**
- * The Feldfehler the form shows: each one once any of its sources is touched. Starting with the user's own data
- * means everything is touched (`ALL_INPUTS`), "delete all data" means nothing is.
+ * The Feldfehler the form shows: each one once any of its sources is touched. Which inputs count as touched
+ * (all of them on a start with the user's own data, none after "delete all data") is up to appState.ts.
  */
 export function visibleErrors(
   outcome: SettingsOutcome,

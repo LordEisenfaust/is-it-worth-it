@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { appReducer, initAppState, type AppState } from "./appState";
-import { ALL_INPUTS, defaultDraft, type SettingsDraft } from "./settings";
+import { defaultDraft, type SettingsDraft } from "./settings";
+
+/** Every touchable input, sorted; written out so a shrinking ALL_INPUTS would show. */
+const everyInput = ["monthsPerYear", "net", "state", "vacationDays", "weeklyHours", "workdays"];
 
 /** Own, usable Gehaltsdaten: the defaults plus a net salary. */
 const own: SettingsDraft = { ...defaultDraft, net: "3000" };
@@ -17,19 +20,19 @@ describe("initAppState", () => {
   it("startet mit eigenen, nutzbaren Daten im Rechner, alles berührt", () => {
     const state = initAppState({ draft: own, theme: "dark" }, 2026);
     expect(state.view).toBe("calculator");
-    expect([...state.touched].sort()).toEqual([...ALL_INPUTS].sort());
+    expect([...state.touched].sort()).toEqual(everyInput);
     expect(state.theme).toBe("dark");
   });
 
   it("startet mit eigenen, nicht nutzbaren Daten in den Einstellungen, alles berührt", () => {
     const state = initAppState({ draft: { ...own, workdays: [] }, theme: "system" }, 2026);
     expect(state.view).toBe("settings");
-    expect([...state.touched].sort()).toEqual([...ALL_INPUTS].sort());
+    expect([...state.touched].sort()).toEqual(everyInput);
   });
 });
 
 describe("appReducer", () => {
-  /** Mid-session: own data, calculator open, net and weekly hours touched. */
+  /** While the app is open: own data, calculator shown, net and weekly hours touched. */
   const running: AppState = {
     draft: own,
     theme: "dark",
@@ -38,12 +41,11 @@ describe("appReducer", () => {
   };
 
   it("„Alle Daten löschen“ übernimmt die frischen Werte, nichts berührt, Ansicht bleibt", () => {
-    const settingsOpen: AppState = { ...running, view: "settings" };
-    const state = appReducer(settingsOpen, { type: "reset", preferences: { draft: defaultDraft, theme: "system" } });
+    const state = appReducer(running, { type: "reset", preferences: { draft: defaultDraft, theme: "system" } });
     expect(state.draft).toEqual(defaultDraft);
     expect(state.theme).toBe("system");
     expect([...state.touched]).toEqual([]);
-    expect(state.view).toBe("settings");
+    expect(state.view).toBe("calculator");
   });
 
   it("Entwurf ändern lässt die berührten Eingaben stehen", () => {
