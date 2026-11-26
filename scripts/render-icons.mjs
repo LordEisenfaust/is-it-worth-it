@@ -5,6 +5,7 @@
 // set PW_CHROMIUM_PATH to use an installed one instead).
 import { readFileSync, writeFileSync } from "node:fs";
 import { chromium } from "@playwright/test";
+// Straight from de.ts: src/i18n/index.ts imports "./de" without extension, which plain Node cannot resolve.
 import { de as t } from "../src/i18n/de.ts";
 import { ACCENT } from "./brand.ts";
 
