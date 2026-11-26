@@ -21,3 +21,14 @@ Zwei Bedeutungen, im Code getrennt benannt:
 ## Netto-Stundenlohn
 
 `hourlyWage`: Jahresnetto / (Arbeitstage pro Jahr × Stunden pro Arbeitstag). Stunden pro Arbeitstag (`hoursPerDay`) = Wochenstunden / Arbeitstage pro Woche.
+
+## Ergebnis
+
+Was der Ergebniskasten im Rechner zu einem eingegebenen **Betrag** zeigt.
+
+- **Auswertung** (`evaluateAmount(amountText, outcome)` → `AmountResult`): die einzige Stelle, die entscheidet, was im Kasten steht. Ergebnis ist eins von drei:
+  - `empty`: noch kein Betrag; der Rechner zeigt einen zufälligen Leertext.
+  - `hint`: ein Hinweis mit `cause` – `"settings"`, wenn die Gehaltsdaten nicht nutzbar sind (hat Vorrang), sonst `"amount"`, wenn der Betrag ungültig ist.
+  - `verdict`: das Verdict.
+- **Verdict** mit **Stufe** (`VerdictLevel`) 1–4: 1 = unter einer Stunde, 2 = unter einem Arbeitstag, 3 = unter einer Arbeitswoche, 4 = eine Woche oder mehr. Der Ton steigert sich mit der Stufe („Vorschlag C“ in `docs/ausgabe-varianten.md`). Jedes Verdict hat Überschrift (`headline`) und Kommentar (`comment`).
+- **Graue Zeile** (`greyLine`): ab Stufe 3 der Betrag in Euro und die genaue Arbeitszeit, z. B. „1.599,00 € · ≈ 29 Stunden und 42 Minuten“; bei Stufe 1–2 gibt es keine.

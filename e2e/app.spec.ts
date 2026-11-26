@@ -43,7 +43,7 @@ test("Erststart zeigt die Einstellungen, danach rechnet der Rechner in vier Stuf
     const grey = result(page).locator("p.muted");
     if (c.level >= 3) {
       await expect(grey).toHaveCount(1);
-      await expect(grey).toContainText(t.verdict.detail(""));
+      await expect(grey).toContainText(t.verdict.greyLine("", ""));
     } else {
       await expect(grey).toHaveCount(0);
     }
