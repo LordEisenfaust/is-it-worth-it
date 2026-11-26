@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { t } from "../i18n";
-import { pickFrom } from "../lib/quips";
+import { pickFrom } from "../lib/random";
 import { commitUrl, REPO_URL } from "../lib/repo";
 import { GitHubIcon } from "./GitHubIcon";
 

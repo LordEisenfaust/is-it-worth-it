@@ -173,6 +173,15 @@ test("Alle Daten löschen leert den Speicher vollständig", async ({ page }) => 
   expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
 });
 
+test("Der Datenschutz-Hinweis unten steht nur in der Rechner-Ansicht", async ({ page }) => {
+  const note = page.getByText(t.footer.privacyNote);
+  await expect(note).toBeHidden();
+  await setUpSalary(page);
+  await expect(note).toBeVisible();
+  await page.getByRole("button", { name: t.app.navSettings }).click();
+  await expect(note).toBeHidden();
+});
+
 test("Fußzeile zeigt Version, Links und einen Spruch", async ({ page }) => {
   const meta = page.locator(".app-meta");
   await expect(meta).toContainText(t.footer.versionLine(pkg.version).before);

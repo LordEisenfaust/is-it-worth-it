@@ -3,7 +3,7 @@
 Unten in der App steht in zwei Zeilen:
 
 ```
-Version 0.3.6 (abc1234) · [GitHub-Logo]
+Version 1.2.3 (abc1234) · [GitHub-Logo]
 Vibecoded with ♥️ by Claude Opus 5.5 – <zufälliger Spruch>
 ```
 
