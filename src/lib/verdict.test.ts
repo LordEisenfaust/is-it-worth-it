@@ -37,7 +37,7 @@ describe("evaluateAmount – leerer Kasten und Hinweise", () => {
   });
 
   it("verlangt zuerst nutzbare Gehaltsdaten, auch wenn schon ein Betrag dasteht", () => {
-    const unusable: SettingsOutcome = { ok: false, errors: { net: "fehlt" } };
+    const unusable: SettingsOutcome = { ok: false, errors: { net: { text: "fehlt", sources: ["net"] } } };
     const settingsHint = { kind: "hint", text: t.calculator.settingsMissing, cause: "settings" };
     expect(evaluateAmount("", unusable)).toEqual(settingsHint);
     expect(evaluateAmount("600", unusable)).toEqual(settingsHint);

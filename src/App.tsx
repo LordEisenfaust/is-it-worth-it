@@ -6,7 +6,14 @@ import { SettingsForm } from "./components/SettingsForm";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { t } from "./i18n";
 import { loadPreferences, resetPreferences, savePreferences } from "./lib/preferences";
-import { evaluateSettings, isDefaultDraft, type SettingsDraft } from "./lib/settings";
+import {
+  ALL_INPUTS,
+  evaluateSettings,
+  isDefaultDraft,
+  visibleErrors,
+  type SettingsDraft,
+  type SettingsInput,
+} from "./lib/settings";
 import type { ThemeChoice } from "./lib/theme";
 
 export function App() {
@@ -25,17 +32,22 @@ export function App() {
   const outcome = useMemo(() => evaluateSettings(draft, year), [draft, year]);
   // Start on the settings view while the salary data is not usable yet.
   const [view, setView] = useState<"calculator" | "settings">(() => (outcome.ok ? "calculator" : "settings"));
-  // A returning user with their own stored data sees its errors at once, not only after leaving a field.
-  const [revealErrors, setRevealErrors] = useState(() => !isDefaultDraft(draft));
-  // Bumped by "delete everything" so the settings form starts over like on a first visit.
-  const [resetCount, setResetCount] = useState(0);
+  // A returning user with their own stored data sees its errors at once: everything counts as touched.
+  const [touched, setTouched] = useState<ReadonlySet<SettingsInput>>(
+    () => new Set(isDefaultDraft(draft) ? [] : ALL_INPUTS),
+  );
+  const errors = useMemo(() => visibleErrors(outcome, touched), [outcome, touched]);
+
+  function touch(input: SettingsInput) {
+    setTouched((current) => (current.has(input) ? current : new Set([...current, input])));
+  }
 
   function deleteEverything() {
     const fresh = resetPreferences();
     setDraft(fresh.draft);
     setTheme(fresh.theme);
-    setRevealErrors(false);
-    setResetCount((count) => count + 1);
+    // Like a first visit: no error shows before the user touches an input.
+    setTouched(new Set());
   }
 
   return (
@@ -74,13 +86,7 @@ export function App() {
         </div>
         {view === "settings" && (
           <div id="settings-panel">
-            <SettingsForm
-              key={resetCount}
-              draft={draft}
-              outcome={outcome}
-              revealErrors={revealErrors}
-              onChange={setDraft}
-            />
+            <SettingsForm draft={draft} outcome={outcome} errors={errors} onChange={setDraft} onTouch={touch} />
             <PrivacyPanel onDeleteAll={deleteEverything} />
           </div>
         )}

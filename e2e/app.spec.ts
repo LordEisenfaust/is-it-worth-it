@@ -123,6 +123,19 @@ test("Wer Arbeitstage abwählt, bis keiner übrig bleibt, sieht den Fehler an de
   await expect(page.getByText(t.validation.noWorkingDaysLeft)).toBeVisible();
 });
 
+test("Wer Arbeitstage abwählt, bis ein Tag über 24 Stunden hätte, sieht den Fehler an den Wochenstunden", async ({
+  page,
+}) => {
+  await page.getByLabel(t.settings.netLabelMonthly).fill("3000");
+  // The weekly hours stay at the default 40 and are never touched; only the workdays change.
+  for (const day of [2, 3, 4, 5]) await page.getByLabel(weekday(day), { exact: true }).uncheck();
+
+  await expect(page.getByText(t.validation.hoursPerDayTooMany)).toBeVisible();
+  await expect(page.getByLabel(t.settings.weeklyHoursLabel)).toHaveAttribute("aria-invalid", "true");
+  await page.getByRole("button", { name: t.app.navCalculator }).click();
+  await expect(result(page)).toContainText(t.calculator.settingsMissing);
+});
+
 test("Erststart: Nach einem Abstecher in den Rechner bleiben nie berührte Felder ohne Fehler", async ({ page }) => {
   await page.getByLabel(t.settings.vacationLabel).fill("28");
   await page.getByRole("button", { name: t.app.navCalculator }).click();

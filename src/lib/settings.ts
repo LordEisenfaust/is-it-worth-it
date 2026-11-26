@@ -30,6 +30,11 @@ export interface SettingsDraft {
 
 export type SettingsField = "net" | "monthsPerYear" | "weeklyHours" | "workdays" | "vacationDays";
 
+/** Every input the user can touch: each field that can show an error, plus the state, which only causes errors. */
+export const ALL_INPUTS = ["net", "monthsPerYear", "weeklyHours", "workdays", "vacationDays", "state"] as const;
+
+export type SettingsInput = (typeof ALL_INPUTS)[number];
+
 export const MIN_MONTHS = 12;
 export const MAX_MONTHS = 16;
 
@@ -43,8 +48,22 @@ export const defaultDraft: SettingsDraft = {
   state: "NW",
 };
 
-/** Error text per field; a field without an entry is fine. */
-export type FieldErrors = Partial<Record<SettingsField, string>>;
+/** A Feldfehler with the inputs it arises from; it becomes visible once one of them is touched. */
+export interface FieldError {
+  text: string;
+  sources: SettingsInput[];
+}
+
+/** Error per field; a field without an entry is fine. */
+export type FieldErrors = Partial<Record<SettingsField, FieldError>>;
+
+/** The sichtbare Feldfehler: the text per field that the form shows. */
+export type VisibleErrors = Partial<Record<SettingsField, string>>;
+
+/** An error that arises from its own field alone. */
+function ownError(field: SettingsField, text: string): FieldError {
+  return { text, sources: [field] };
+}
 
 interface ValidationResult {
   settings: Settings | null;
@@ -72,35 +91,37 @@ function validateDraft(draft: SettingsDraft): ValidationResult {
   const net = parseNumber(draft.net);
   const v = t.validation;
   const netLabel = draft.mode === "monthly" ? t.settings.monthly : t.settings.yearly;
-  if (draft.net.trim() === "") errors.net = v.netMissing(netLabel);
-  else if (!Number.isFinite(net) || net <= 0) errors.net = v.netInvalid(netLabel);
-  else if (net > 1e9) errors.net = v.netTooLarge(netLabel);
+  if (draft.net.trim() === "") errors.net = ownError("net", v.netMissing(netLabel));
+  else if (!Number.isFinite(net) || net <= 0) errors.net = ownError("net", v.netInvalid(netLabel));
+  else if (net > 1e9) errors.net = ownError("net", v.netTooLarge(netLabel));
 
   const months = draft.monthsPerYear;
   if (!Number.isInteger(months) || months < MIN_MONTHS || months > MAX_MONTHS) {
-    errors.monthsPerYear = v.monthsOutOfRange(MIN_MONTHS, MAX_MONTHS);
+    errors.monthsPerYear = ownError("monthsPerYear", v.monthsOutOfRange(MIN_MONTHS, MAX_MONTHS));
   }
 
   const weeklyHours = parseNumber(draft.weeklyHours);
-  if (draft.weeklyHours.trim() === "") errors.weeklyHours = v.weeklyHoursMissing;
+  if (draft.weeklyHours.trim() === "") errors.weeklyHours = ownError("weeklyHours", v.weeklyHoursMissing);
   else if (!Number.isFinite(weeklyHours) || weeklyHours <= 0) {
-    errors.weeklyHours = v.weeklyHoursInvalid;
-  } else if (weeklyHours > 168) errors.weeklyHours = v.weeklyHoursTooMany;
+    errors.weeklyHours = ownError("weeklyHours", v.weeklyHoursInvalid);
+  } else if (weeklyHours > 168) errors.weeklyHours = ownError("weeklyHours", v.weeklyHoursTooMany);
 
   const workdays = [...new Set(draft.workdays)].filter((d) => Number.isInteger(d) && d >= 0 && d <= 6);
-  if (workdays.length === 0) errors.workdays = v.workdaysMissing;
+  if (workdays.length === 0) errors.workdays = ownError("workdays", v.workdaysMissing);
   else if (!errors.weeklyHours) {
     // Below one hour per day the work time could not be split into minutes, hours and days in that order.
+    // Shown at the weekly hours, but just as much caused by the chosen workdays.
     const hoursPerDay = weeklyHours / workdays.length;
-    if (hoursPerDay > 24) errors.weeklyHours = v.hoursPerDayTooMany;
-    else if (hoursPerDay < 1) errors.weeklyHours = v.hoursPerDayTooFew;
+    const sources: SettingsInput[] = ["weeklyHours", "workdays"];
+    if (hoursPerDay > 24) errors.weeklyHours = { text: v.hoursPerDayTooMany, sources };
+    else if (hoursPerDay < 1) errors.weeklyHours = { text: v.hoursPerDayTooFew, sources };
   }
 
   const vacationDays = parseNumber(draft.vacationDays);
-  if (draft.vacationDays.trim() === "") errors.vacationDays = v.vacationMissing;
+  if (draft.vacationDays.trim() === "") errors.vacationDays = ownError("vacationDays", v.vacationMissing);
   else if (!Number.isInteger(vacationDays) || vacationDays < 0) {
-    errors.vacationDays = v.vacationInvalid;
-  } else if (vacationDays > 366) errors.vacationDays = v.vacationTooMany;
+    errors.vacationDays = ownError("vacationDays", v.vacationInvalid);
+  } else if (vacationDays > 366) errors.vacationDays = ownError("vacationDays", v.vacationTooMany);
 
   if (Object.keys(errors).length > 0) return { settings: null, errors };
 
@@ -144,8 +165,28 @@ export function evaluateSettings(draft: SettingsDraft, year: number): SettingsOu
   if (!settings) return { ok: false, errors };
   const info = computeWage(settings, year);
   // The only way usable fields can still fail: vacation and holidays leave no working day in the year.
-  if (!info) return { ok: false, errors: { vacationDays: t.validation.noWorkingDaysLeft } };
+  // Shown at the vacation days; the workdays and the state's holidays count just as much.
+  if (!info) {
+    const sources: SettingsInput[] = ["workdays", "vacationDays", "state"];
+    return { ok: false, errors: { vacationDays: { text: t.validation.noWorkingDaysLeft, sources } } };
+  }
   return { ok: true, info };
+}
+
+/**
+ * The Feldfehler the form shows: each one once any of its sources is touched. Starting with the user's own data
+ * means everything is touched (`ALL_INPUTS`), "delete all data" means nothing is.
+ */
+export function visibleErrors(
+  outcome: SettingsOutcome,
+  touched: ReadonlySet<SettingsInput>,
+): VisibleErrors {
+  if (outcome.ok) return {};
+  const visible: VisibleErrors = {};
+  for (const [field, error] of Object.entries(outcome.errors) as [SettingsField, FieldError][]) {
+    if (error.sources.some((input) => touched.has(input))) visible[field] = error.text;
+  }
+  return visible;
 }
 
 /** Null when vacation and holidays leave no working day in the year. */

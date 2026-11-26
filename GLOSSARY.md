@@ -8,8 +8,10 @@ Alles, was in der Ansicht „Einstellungen“ eingegeben wird: Netto (Monats- od
 
 - **Entwurf** (`SettingsDraft`): die Gehaltsdaten, wie das Formular sie hält. Textfelder bleiben Strings, damit halb getippte Eingaben nicht verloren gehen. Wird so in localStorage gespeichert.
 - **Gehaltsdaten** (`Settings`): der validierte Entwurf mit Zahlen. Nur intern im Einstellungs-Modul.
-- **Auswertung der Gehaltsdaten** (`evaluateSettings(draft, year)` → `SettingsOutcome`): die einzige Stelle, die entscheidet, ob die Gehaltsdaten nutzbar sind. Ergebnis ist entweder `{ ok: true, info }` mit dem Netto-Stundenlohn und der Zusammenfassung (`WageInfo`) oder `{ ok: false, errors }` mit Feldfehlern. Feldfehler sind der einzige Fehlerkanal; „kein Arbeitstag übrig“ ist ein Feldfehler an den Urlaubstagen.
-- _Vermeiden_: „Settings“ für den Entwurf; „Lohnberechnung“ als eigener Schritt neben der Validierung.
+- **Auswertung der Gehaltsdaten** (`evaluateSettings(draft, year)` → `SettingsOutcome`): die einzige Stelle, die entscheidet, ob die Gehaltsdaten nutzbar sind. Ergebnis ist entweder `{ ok: true, info }` mit dem Netto-Stundenlohn und der Zusammenfassung (`WageInfo`) oder `{ ok: false, errors }` mit Feldfehlern (`FieldError`, mit Quellen). Feldfehler sind der einzige Fehlerkanal; „kein Arbeitstag übrig“ ist ein Feldfehler an den Urlaubstagen.
+- **Feldfehler** (`FieldError`): Text plus **Quellen** (`sources`), die Eingaben, aus denen der Fehler entsteht. Meist nur das eigene Feld; „zu viele/zu wenige Stunden pro Tag“ (an den Wochenstunden) hat die Quellen Wochenstunden und Arbeitstage, „kein Arbeitstag übrig“ (an den Urlaubstagen) Arbeitstage, Urlaubstage und Bundesland.
+- **Sichtbare Feldfehler** (`visibleErrors(outcome, touched)` → `VisibleErrors`): Ein Feldfehler ist sichtbar, sobald eine seiner Quellen **berührt** ist. Berührbare Eingaben (`SettingsInput`) sind die Fehlerfelder und das Bundesland; Textfelder gelten beim Verlassen als berührt, Arbeitstage und Bundesland bei der Änderung. Start mit eigenen Daten = alles berührt, „Alle Daten löschen“ = nichts berührt. Den Zustand hält `App.tsx`; das Formular zeigt nur an. Gewollt: Ist eine Quelle schon berührt, erscheint der Fehler auch beim Tippen in einem anderen Textfeld sofort, nicht erst beim Verlassen.
+- _Vermeiden_: „Settings“ für den Entwurf; „Lohnberechnung“ als eigener Schritt neben der Validierung; „touched“ als eigener Zustand im Formular; Querregeln („diese Änderung betrifft auch jenes Feld“) außerhalb von `evaluateSettings`.
 
 ## Arbeitstage
 
