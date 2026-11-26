@@ -46,3 +46,11 @@ Was die App im Browser behält (`Preferences` in `src/lib/preferences.ts`): den 
 - **Alle Daten löschen** (`resetPreferences`): entfernt alle Schlüssel mit `iiwi:`, lässt fremde stehen und liefert frische Standardwerte, die dann nicht zurückgeschrieben werden.
 - **Darstellung anwenden** (`applyTheme` in `src/lib/theme.ts`): eine manuelle Darstellung als `data-theme` an `<html>`; bei „System“ wird das Attribut entfernt, dann entscheidet das Betriebssystem.
 - **Startskript**: das Inline-Skript in `index.html`, das eine gespeicherte manuelle Darstellung schon vor dem ersten Zeichnen setzt, damit nichts flackert. Es ist eine bewusste Kopie von Schlüssel und Regel; `src/lib/theme.test.ts` prüft es gegen `loadPreferences` und `applyTheme`.
+
+## App-Zustand
+
+Was die App hält, solange sie offen ist (`AppState` in `src/lib/appState.ts`): den **Entwurf**, die **Darstellung**, die **Ansicht** (`View`: Rechner oder Einstellungen) und die berührten Eingaben. Die Auswertung der Gehaltsdaten und die sichtbaren Feldfehler gehören nicht dazu; `App.tsx` berechnet sie bei jedem Rendern daraus.
+
+- **Start** (`initAppState(preferences, year)`): aus den gespeicherten Daten. Die Ansicht ist „Einstellungen“, solange die Gehaltsdaten nicht nutzbar sind, sonst „Rechner“. Bei eigenen Daten (nicht die Standardwerte, `isDefaultDraft`) ist alles berührt.
+- **Übergänge** (`appReducer`): Entwurf ändern, Eingabe berühren, Darstellung wählen, Ansicht wechseln, Zurücksetzen. Zurücksetzen gehört zu „Alle Daten löschen“: `App.tsx` leert vorher den Speicher mit `resetPreferences` und gibt dessen frische Standardwerte mit; nichts ist mehr berührt, die Ansicht bleibt.
+- _Vermeiden_: „Session“ (klingt nach Login, den die App nicht hat).

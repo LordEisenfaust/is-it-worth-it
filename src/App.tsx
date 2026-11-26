@@ -1,50 +1,30 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useReducer } from "react";
 import { AppFooter } from "./components/AppFooter";
 import { Calculator } from "./components/Calculator";
 import { PrivacyPanel } from "./components/PrivacyPanel";
 import { SettingsForm } from "./components/SettingsForm";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { t } from "./i18n";
+import { appReducer, initAppState } from "./lib/appState";
 import { loadPreferences, resetPreferences, savePreferences } from "./lib/preferences";
-import {
-  ALL_INPUTS,
-  evaluateSettings,
-  isDefaultDraft,
-  visibleErrors,
-  type SettingsDraft,
-  type SettingsInput,
-} from "./lib/settings";
-import { applyTheme, type ThemeChoice } from "./lib/theme";
+import { evaluateSettings, visibleErrors } from "./lib/settings";
+import { applyTheme } from "./lib/theme";
+
+const currentYear = () => new Date().getFullYear();
 
 export function App() {
-  const [initial] = useState(loadPreferences);
-  const [draft, setDraft] = useState<SettingsDraft>(initial.draft);
-  const [theme, setTheme] = useState<ThemeChoice>(initial.theme);
+  const [state, dispatch] = useReducer(appReducer, undefined, () => initAppState(loadPreferences(), currentYear()));
+  const { draft, theme, view, touched } = state;
 
   useEffect(() => savePreferences({ draft, theme }), [draft, theme]);
   useEffect(() => applyTheme(theme, document.documentElement), [theme]);
 
-  const year = new Date().getFullYear();
+  const year = currentYear();
   const outcome = useMemo(() => evaluateSettings(draft, year), [draft, year]);
-  // Start on the settings view while the salary data is not usable yet.
-  const [view, setView] = useState<"calculator" | "settings">(() => (outcome.ok ? "calculator" : "settings"));
-  // A returning user with their own stored data sees its errors at once: everything counts as touched.
-  const [touched, setTouched] = useState<ReadonlySet<SettingsInput>>(
-    () => new Set(isDefaultDraft(draft) ? [] : ALL_INPUTS),
-  );
   const errors = useMemo(() => visibleErrors(outcome, touched), [outcome, touched]);
 
-  function touch(input: SettingsInput) {
-    setTouched((current) => (current.has(input) ? current : new Set([...current, input])));
-  }
-
-  function deleteEverything() {
-    const fresh = resetPreferences();
-    setDraft(fresh.draft);
-    setTheme(fresh.theme);
-    // Like a first visit: no error shows before the user touches an input.
-    setTouched(new Set());
-  }
+  // resetPreferences clears the storage and hands back the fresh defaults for the App-Zustand.
+  const deleteEverything = () => dispatch({ type: "reset", preferences: resetPreferences() });
 
   return (
     <>
@@ -53,7 +33,7 @@ export function App() {
           <h1>{t.app.title}</h1>
           <p className="muted">{t.app.tagline}</p>
         </div>
-        <ThemeToggle value={theme} onChange={setTheme} />
+        <ThemeToggle value={theme} onChange={(choice) => dispatch({ type: "chooseTheme", theme: choice })} />
       </header>
 
       <nav className="view-nav" aria-label={t.app.navLabel}>
@@ -61,7 +41,7 @@ export function App() {
           type="button"
           className={view === "calculator" ? undefined : "secondary"}
           aria-current={view === "calculator" ? "page" : undefined}
-          onClick={() => setView("calculator")}
+          onClick={() => dispatch({ type: "showView", view: "calculator" })}
         >
           {t.app.navCalculator}
         </button>
@@ -69,7 +49,7 @@ export function App() {
           type="button"
           className={view === "settings" ? undefined : "secondary"}
           aria-current={view === "settings" ? "page" : undefined}
-          onClick={() => setView("settings")}
+          onClick={() => dispatch({ type: "showView", view: "settings" })}
         >
           {t.app.navSettings}
         </button>
@@ -82,7 +62,13 @@ export function App() {
         </div>
         {view === "settings" && (
           <div id="settings-panel">
-            <SettingsForm draft={draft} outcome={outcome} errors={errors} onChange={setDraft} onTouch={touch} />
+            <SettingsForm
+              draft={draft}
+              outcome={outcome}
+              errors={errors}
+              onChange={(edited) => dispatch({ type: "editDraft", draft: edited })}
+              onTouch={(input) => dispatch({ type: "touch", input })}
+            />
             <PrivacyPanel onDeleteAll={deleteEverything} />
           </div>
         )}
