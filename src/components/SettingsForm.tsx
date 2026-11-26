@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { t } from "../i18n";
 import { formatEuro, formatHolidayDate, formatHoursPerDay } from "../lib/format";
 import { STATE_CODES, STATE_NAMES, type StateCode } from "../lib/holidays";
@@ -8,26 +7,22 @@ import {
   type IncomeMode,
   type SettingsDraft,
   type SettingsField,
+  type SettingsInput,
   type SettingsOutcome,
 } from "../lib/settings";
 
-const ALL_FIELDS: SettingsField[] = ["net", "monthsPerYear", "weeklyHours", "workdays", "vacationDays"];
-
 interface Props {
   draft: SettingsDraft;
-  /** The evaluated Gehaltsdaten: field errors, or the summary once they are usable. */
+  /** The evaluated Gehaltsdaten; used here for the summary once they are usable. */
   outcome: SettingsOutcome;
-  /** Show every field's error at once (the app started with the user's own data); otherwise only after blur. */
-  revealErrors: boolean;
+  /** The sichtbare Feldfehler (see `visibleErrors`); the form shows them and decides nothing about visibility. */
+  errors: Partial<Record<SettingsField, string>>;
   onChange: (draft: SettingsDraft) => void;
+  /** Text fields report a touch on blur, workdays and state on change. */
+  onTouch: (input: SettingsInput) => void;
 }
 
-export function SettingsForm({ draft, outcome, revealErrors, onChange }: Props) {
-  const [touched, setTouched] = useState<Set<SettingsField>>(() => new Set(revealErrors ? ALL_FIELDS : []));
-  const touch = (...fields: SettingsField[]) =>
-    setTouched((current) => new Set([...current, ...fields]));
-  const errors = outcome.ok ? {} : outcome.errors;
-  const shown = (field: SettingsField) => (touched.has(field) ? errors[field] : undefined);
+export function SettingsForm({ draft, outcome, errors, onChange, onTouch }: Props) {
   const set = <K extends keyof SettingsDraft>(key: K, value: SettingsDraft[K]) =>
     onChange({ ...draft, [key]: value });
 
@@ -35,8 +30,7 @@ export function SettingsForm({ draft, outcome, revealErrors, onChange }: Props) 
   const info = outcome.ok ? outcome.info : null;
 
   function toggleDay(day: number) {
-    // Fewer workdays can leave no working day after vacation; that error shows at the vacation field.
-    touch("workdays", "vacationDays");
+    onTouch("workdays");
     set("workdays", draft.workdays.includes(day) ? draft.workdays.filter((d) => d !== day) : [...draft.workdays, day]);
   }
 
@@ -71,8 +65,8 @@ export function SettingsForm({ draft, outcome, revealErrors, onChange }: Props) 
             autoComplete="off"
             value={draft.net}
             onChange={(e) => set("net", e.target.value)}
-            onBlur={() => touch("net")}
-            aria-invalid={shown("net") !== undefined}
+            onBlur={() => onTouch("net")}
+            aria-invalid={errors.net !== undefined}
             aria-describedby="net-error"
           />
           {/* Decorative: the label already says "in Euro". */}
@@ -81,7 +75,7 @@ export function SettingsForm({ draft, outcome, revealErrors, onChange }: Props) 
           </span>
         </div>
         <p id="net-error" className="error">
-          {shown("net")}
+          {errors.net}
         </p>
       </div>
 
@@ -111,12 +105,12 @@ export function SettingsForm({ draft, outcome, revealErrors, onChange }: Props) 
           autoComplete="off"
           value={draft.weeklyHours}
           onChange={(e) => set("weeklyHours", e.target.value)}
-          onBlur={() => touch("weeklyHours")}
-          aria-invalid={shown("weeklyHours") !== undefined}
+          onBlur={() => onTouch("weeklyHours")}
+          aria-invalid={errors.weeklyHours !== undefined}
           aria-describedby="weekly-hours-error"
         />
         <p id="weekly-hours-error" className="error">
-          {shown("weeklyHours")}
+          {errors.weeklyHours}
         </p>
       </div>
 
@@ -136,7 +130,7 @@ export function SettingsForm({ draft, outcome, revealErrors, onChange }: Props) 
           ))}
         </div>
         <p id="workdays-error" className="error">
-          {shown("workdays")}
+          {errors.workdays}
         </p>
       </fieldset>
 
@@ -149,12 +143,12 @@ export function SettingsForm({ draft, outcome, revealErrors, onChange }: Props) 
           autoComplete="off"
           value={draft.vacationDays}
           onChange={(e) => set("vacationDays", e.target.value)}
-          onBlur={() => touch("vacationDays")}
-          aria-invalid={shown("vacationDays") !== undefined}
+          onBlur={() => onTouch("vacationDays")}
+          aria-invalid={errors.vacationDays !== undefined}
           aria-describedby="vacation-error"
         />
         <p id="vacation-error" className="error">
-          {shown("vacationDays")}
+          {errors.vacationDays}
         </p>
       </div>
 
@@ -164,8 +158,7 @@ export function SettingsForm({ draft, outcome, revealErrors, onChange }: Props) 
           id="state"
           value={draft.state}
           onChange={(e) => {
-            // Other holidays can leave no working day after vacation; that error shows at the vacation field.
-            touch("vacationDays");
+            onTouch("state");
             set("state", e.target.value as StateCode);
           }}
         >
