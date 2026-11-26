@@ -63,7 +63,8 @@ export const de = {
     level3Comment: "Schlaf lieber noch eine Nacht drüber.",
     level4Headline: (time: string) => `${time} Arbeit. Ernsthaft?`,
     level4Comment: (weeks: string) => `${weeks} deines Lebens. Das muss es dir wert sein.`,
-    detail: (time: string) => `≈ ${time}`,
+    /** Muted line from Stufe 3 on: the Betrag and the exact working time. */
+    greyLine: (amount: string, time: string) => `${amount} · ≈ ${time}`,
   },
 
   /** Unit words as [singular, plural] and the joiner of two units ("6 Tage und 1 Stunde"). */

@@ -1,70 +1,118 @@
 import { describe, expect, it } from "vitest";
-import { workTimeVerdict } from "./verdict";
+import { t } from "../i18n";
+import type { SettingsOutcome } from "./settings";
+import { evaluateAmount } from "./verdict";
 
-// 8 h per day, Monday to Friday.
-const v = (hours: number) => workTimeVerdict(hours, 8, 5);
+/**
+ * Gehaltsdaten with 10 € per hour and 8 h per working day, so an amount is hours × 10.
+ * Only hourlyWage, hoursPerDay and workdaysPerWeek matter for the result; the other fields are placeholders.
+ */
+function usable(workdaysPerWeek = 5): SettingsOutcome {
+  return {
+    ok: true,
+    info: {
+      year: 2026,
+      annualNet: 0,
+      workingDaysPerYear: 0,
+      hoursPerDay: 8,
+      workdaysPerWeek,
+      hourlyWage: 10,
+      holidaysOnWorkdays: [],
+      allHolidays: [],
+    },
+  };
+}
 
-describe("workTimeVerdict", () => {
-  it("Stufe 1: unter einer Stunde gelassen", () => {
-    expect(v(0.75)).toEqual({
+/** The verdict for an amount at 10 € per hour, Mo–Fr unless given. */
+function verdict(amountText: string, workdaysPerWeek = 5) {
+  const result = evaluateAmount(amountText, usable(workdaysPerWeek));
+  if (result.kind !== "verdict") throw new Error(`expected a verdict, got ${JSON.stringify(result)}`);
+  return result;
+}
+
+describe("evaluateAmount – leerer Kasten und Hinweise", () => {
+  it("zeigt ohne Betrag einen leeren Kasten", () => {
+    expect(evaluateAmount("", usable())).toEqual({ kind: "empty" });
+    expect(evaluateAmount("   ", usable())).toEqual({ kind: "empty" });
+  });
+
+  it("verlangt zuerst nutzbare Gehaltsdaten, auch wenn schon ein Betrag dasteht", () => {
+    const unusable: SettingsOutcome = { ok: false, errors: { net: "fehlt" } };
+    const settingsHint = { kind: "hint", text: t.calculator.settingsMissing, cause: "settings" };
+    expect(evaluateAmount("", unusable)).toEqual(settingsHint);
+    expect(evaluateAmount("600", unusable)).toEqual(settingsHint);
+    expect(evaluateAmount("abc", unusable)).toEqual(settingsHint);
+  });
+
+  it("meldet einen ungültigen Betrag am Betrag", () => {
+    expect(evaluateAmount("abc", usable())).toEqual({
+      kind: "hint",
+      text: t.validation.amountInvalid,
+      cause: "amount",
+    });
+    expect(evaluateAmount("0", usable())).toEqual({ kind: "hint", text: t.validation.amountZero, cause: "amount" });
+  });
+});
+
+describe("evaluateAmount – Verdict", () => {
+  it("Stufe 1: unter einer Stunde gelassen, ohne graue Zeile", () => {
+    expect(evaluateAmount("7,50", usable())).toEqual({
+      kind: "verdict",
       level: 1,
       headline: "45 Minuten. Gönn dir.",
       comment: "So schnell verdient, so schnell ausgegeben.",
-      detail: "",
+      greyLine: null,
     });
-    expect(v(1 / 60)?.headline).toBe("1 Minute. Gönn dir.");
-    expect(v(0)?.headline).toBe("Nicht mal eine Minute. Gönn dir.");
+    // 0,17 € ≈ 1 Minute, 0,01 € ≈ 4 Sekunden.
+    expect(verdict("0,17").headline).toBe("1 Minute. Gönn dir.");
+    expect(verdict("0,01").headline).toBe("Nicht mal eine Minute. Gönn dir.");
   });
 
-  it("Stufe 2: unter einem Arbeitstag nachdenklich, in Stunden und Minuten", () => {
-    expect(v(5.9)).toEqual({
+  it("Stufe 2: unter einem Arbeitstag nachdenklich, in Stunden und Minuten, ohne graue Zeile", () => {
+    expect(verdict("59")).toEqual({
+      kind: "verdict",
       level: 2,
       headline: "5 Stunden und 54 Minuten Arbeit.",
       comment: "Ein Großteil deines Arbeitstags. Brauchst du das wirklich?",
-      detail: "",
+      greyLine: null,
     });
-    expect(v(2)?.comment).toBe("Ein ordentliches Stück deines Arbeitstags. Brauchst du das wirklich?");
-    expect(v(1)?.headline).toBe("1 Stunde Arbeit.");
+    expect(verdict("20").comment).toBe("Ein ordentliches Stück deines Arbeitstags. Brauchst du das wirklich?");
+    expect(verdict("10").headline).toBe("1 Stunde Arbeit.");
   });
 
-  it("Stufe 3: ab einem Arbeitstag frech, in Tagen und Stunden", () => {
-    expect(v(29.7)).toEqual({
+  it("Stufe 3: ab einem Arbeitstag frech, mit grauer Zeile aus Betrag und genauer Arbeitszeit", () => {
+    expect(verdict("297")).toEqual({
+      kind: "verdict",
       level: 3,
       headline: "3 Tage und 6 Stunden Schufterei.",
       comment: "Schlaf lieber noch eine Nacht drüber.",
-      detail: "≈ 29 Stunden und 42 Minuten",
+      greyLine: "297,00 € · ≈ 29 Stunden und 42 Minuten",
     });
-    expect(v(8)?.headline).toBe("1 Tag Schufterei.");
+    expect(verdict("80").headline).toBe("1 Tag Schufterei.");
   });
 
   it("Stufe 4: ab einer Arbeitswoche mit Wochen und Tagen", () => {
-    const r = v(99.2);
-    expect(r?.level).toBe(4);
-    expect(r?.headline).toBe("12 Tage und 3 Stunden Arbeit. Ernsthaft?");
-    expect(r?.comment).toBe("2 Wochen und 2 Tage deines Lebens. Das muss es dir wert sein.");
-    expect(r?.detail).toBe("≈ 99 Stunden und 12 Minuten");
-    expect(v(40)?.comment).toBe("1 Woche deines Lebens. Das muss es dir wert sein.");
+    expect(verdict("992")).toEqual({
+      kind: "verdict",
+      level: 4,
+      headline: "12 Tage und 3 Stunden Arbeit. Ernsthaft?",
+      comment: "2 Wochen und 2 Tage deines Lebens. Das muss es dir wert sein.",
+      greyLine: "992,00 € · ≈ 99 Stunden und 12 Minuten",
+    });
+    expect(verdict("400").comment).toBe("1 Woche deines Lebens. Das muss es dir wert sein.");
   });
 
   it("Stufe 4: Wochenzeile widerspricht der Überschrift nicht", () => {
     // 84,9 h = 10 Tage und 5 Stunden; früher stand darunter "2 Wochen und 1 Tag" (aufgerundet).
-    const r = v(84.9);
-    expect(r?.headline).toBe("10 Tage und 5 Stunden Arbeit. Ernsthaft?");
-    expect(r?.comment).toBe("2 Wochen deines Lebens. Das muss es dir wert sein.");
+    expect(verdict("849").headline).toBe("10 Tage und 5 Stunden Arbeit. Ernsthaft?");
+    expect(verdict("849").comment).toBe("2 Wochen deines Lebens. Das muss es dir wert sein.");
     // Bei einer 4-Tage-Woche zählen 9 ganze Tage als 2 Wochen und 1 Tag (die 0,6 Tage werden nicht mitgerundet).
-    expect(workTimeVerdict(76.8, 8, 4)?.headline).toBe("9 Tage und 5 Stunden Arbeit. Ernsthaft?");
-    expect(workTimeVerdict(76.8, 8, 4)?.comment).toBe("2 Wochen und 1 Tag deines Lebens. Das muss es dir wert sein.");
+    expect(verdict("768", 4).headline).toBe("9 Tage und 5 Stunden Arbeit. Ernsthaft?");
+    expect(verdict("768", 4).comment).toBe("2 Wochen und 1 Tag deines Lebens. Das muss es dir wert sein.");
   });
 
   it("richtet die Wochengrenze nach den gewählten Arbeitstagen", () => {
-    expect(workTimeVerdict(32, 8, 5)?.level).toBe(3);
-    expect(workTimeVerdict(32, 8, 4)?.level).toBe(4);
-  });
-
-  it("liefert null bei ungültigen Werten", () => {
-    expect(v(NaN)).toBeNull();
-    expect(v(-1)).toBeNull();
-    expect(workTimeVerdict(5, 0, 5)).toBeNull();
-    expect(workTimeVerdict(5, 8, 0)).toBeNull();
+    expect(verdict("320").level).toBe(3);
+    expect(verdict("320", 4).level).toBe(4);
   });
 });
