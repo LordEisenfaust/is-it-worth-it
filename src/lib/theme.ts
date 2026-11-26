@@ -10,7 +10,7 @@ export function sanitizeTheme(raw: unknown): ThemeChoice {
 }
 
 /** The part of <html> the Darstellung needs; in the browser `document.documentElement`. */
-export type ThemeRoot = Pick<Element, "setAttribute" | "removeAttribute">;
+type ThemeRoot = Pick<Element, "setAttribute" | "removeAttribute">;
 
 /** Puts the Darstellung on the page: a manual choice as `data-theme`, "system" leaves it to the OS. */
 export function applyTheme(choice: ThemeChoice, root: ThemeRoot): void {

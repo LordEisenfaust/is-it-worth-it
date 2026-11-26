@@ -31,11 +31,14 @@ describe("applyTheme", () => {
   });
 });
 
-/** The inline Startskript from index.html's <head>; it must be exactly one script without `src`. */
+/** The inline Startskript from index.html's <head>; it must be the only script there without `src`. */
 function startScript(): string {
   const html = readFileSync(new URL("../../index.html", import.meta.url), "utf8");
-  const head = html.slice(0, html.indexOf("</head>"));
-  const inline = [...head.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  const headEnd = html.indexOf("</head>");
+  if (headEnd === -1) throw new Error("index.html has no </head>");
+  const inline = [...html.slice(0, headEnd).matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)]
+    .filter((m) => !/\bsrc\s*=/.test(m[1]))
+    .map((m) => m[2]);
   if (inline.length !== 1) throw new Error(`expected one inline script in the <head> of index.html, found ${inline.length}`);
   return inline[0];
 }

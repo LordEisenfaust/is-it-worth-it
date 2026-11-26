@@ -176,6 +176,8 @@ test.describe("Startskript", () => {
 
   test("setzt eine gespeicherte Darstellung schon ohne das JavaScript der App", async ({ page }) => {
     await page.getByLabel(t.theme.dark, { exact: true }).check();
+    // Applied means the effects ran, so the choice is saved before the reload.
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     await page.route("**/assets/*.js", (route) => route.abort());
     await page.reload();
 
