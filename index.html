@@ -8,7 +8,9 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Lohnt es? – Der Rechner, den dein Warenkorb hasst</title>
     <script>
-      // Apply a saved manual theme before first paint to avoid a flash of the wrong theme.
+      // Startskript: apply a saved manual theme before first paint to avoid a flash of the wrong theme.
+      // A deliberate copy of KEYS.theme and the theme rule; src/lib/theme.test.ts checks it against
+      // loadPreferences and applyTheme, so change both together.
       try {
         var t = JSON.parse(localStorage.getItem("iiwi:theme"));
         if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);

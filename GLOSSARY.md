@@ -44,3 +44,5 @@ Was die App im Browser behält (`Preferences` in `src/lib/preferences.ts`): den 
 - **Laden** (`loadPreferences`): gesäubert; unbrauchbare Felder fallen auf Standardwerte zurück, Reste des früheren Verlaufs werden entfernt.
 - **Speichern** (`savePreferences`): Standardwerte werden nicht gespeichert, ihr Schlüssel wird entfernt. „Standard“ ist fachlich gemeint: Der Entwurf zählt auch mit anders sortierten Arbeitstagen als Standard (`isDefaultDraft`).
 - **Alle Daten löschen** (`resetPreferences`): entfernt alle Schlüssel mit `iiwi:`, lässt fremde stehen und liefert frische Standardwerte, die dann nicht zurückgeschrieben werden.
+- **Darstellung anwenden** (`applyTheme` in `src/lib/theme.ts`): eine manuelle Darstellung als `data-theme` an `<html>`; bei „System“ wird das Attribut entfernt, dann entscheidet das Betriebssystem.
+- **Startskript**: das Inline-Skript in `index.html`, das eine gespeicherte manuelle Darstellung schon vor dem ersten Zeichnen setzt, damit nichts flackert. Es ist eine bewusste Kopie von Schlüssel und Regel; `src/lib/theme.test.ts` prüft es gegen `loadPreferences` und `applyTheme`.

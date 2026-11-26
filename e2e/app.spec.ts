@@ -170,6 +170,20 @@ test("Darstellung lässt sich umschalten und wird gemerkt", async ({ page }) => 
   await expect(root).not.toHaveAttribute("data-theme");
 });
 
+test.describe("Startskript", () => {
+  // The service worker would serve the bundles from its cache, past page.route.
+  test.use({ serviceWorkers: "block" });
+
+  test("setzt eine gespeicherte Darstellung schon ohne das JavaScript der App", async ({ page }) => {
+    await page.getByLabel(t.theme.dark, { exact: true }).check();
+    await page.route("**/assets/*.js", (route) => route.abort());
+    await page.reload();
+
+    await expect(page.getByLabel(t.theme.dark, { exact: true })).toHaveCount(0);
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  });
+});
+
 test("Alle Daten löschen leert den Speicher vollständig", async ({ page }) => {
   await page.getByLabel(t.settings.netLabelMonthly).fill("3000");
   await page.getByLabel(t.theme.dark, { exact: true }).check();
