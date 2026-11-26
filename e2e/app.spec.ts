@@ -1,6 +1,9 @@
+import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { de as t } from "../src/i18n/de";
 import { REPO_URL } from "../src/lib/repo";
+
+const pkg = JSON.parse(readFileSync("package.json", "utf8")) as { version: string };
 
 // The app computes for the current calendar year; pin the date so holidays and working days are stable.
 const NOW = new Date("2026-10-01T12:00:00+02:00");
@@ -170,10 +173,19 @@ test("Alle Daten löschen leert den Speicher vollständig", async ({ page }) => 
   expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
 });
 
+test("Der Datenschutz-Hinweis unten steht nur in der Rechner-Ansicht", async ({ page }) => {
+  const note = page.getByText(t.footer.privacyNote);
+  await expect(note).toBeHidden();
+  await setUpSalary(page);
+  await expect(note).toBeVisible();
+  await page.getByRole("button", { name: t.app.navSettings }).click();
+  await expect(note).toBeHidden();
+});
+
 test("Fußzeile zeigt Version, Links und einen Spruch", async ({ page }) => {
   const meta = page.locator(".app-meta");
-  await expect(meta).toContainText(t.app.version);
-  await expect(page.getByRole("link", { name: t.app.repoLabel })).toHaveAttribute("href", REPO_URL);
+  await expect(meta).toContainText(t.footer.versionLine(pkg.version).before);
+  await expect(page.getByRole("link", { name: t.footer.repoLabel })).toHaveAttribute("href", REPO_URL);
   const credit = await meta.locator("p").nth(1).innerText();
   expect(credit.startsWith(t.footer.creditPrefix)).toBe(true);
   expect(t.footer.quips).toContain(credit.slice(t.footer.creditPrefix.length).trim());
