@@ -4,7 +4,7 @@ Status: angenommen (26.11.2026)
 
 ## Kontext
 
-Im Einstellungsformular (`src/components/SettingsForm.tsx`) wiederholt sich die Verdrahtung aus Label, Eingabe, Fehlertext und `aria-invalid` / `aria-describedby` für Netto, Wochenstunden, Arbeitstage und Urlaubstage. Die Architektur-Review vom 25.11.2026 (Kandidat #5) hat erwogen, das in eine gemeinsame Feld-Komponente zu ziehen.
+Im Einstellungsformular (`src/components/SettingsForm.tsx`) wiederholt sich die Verdrahtung aus Label, Eingabe, Fehlertext und `aria-invalid` / `aria-describedby` für Netto, Wochenstunden und Urlaubstage; die Arbeitstage haben als `fieldset` nur `aria-describedby`. Die Architektur-Review vom 25.11.2026 (Kandidat #5) hat erwogen, das in eine gemeinsame Feld-Komponente zu ziehen.
 
 ## Entscheidung
 
