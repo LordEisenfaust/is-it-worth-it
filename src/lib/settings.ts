@@ -53,8 +53,17 @@ interface ValidationResult {
 
 /** Whether the draft holds the defaults, ignoring the order in which workdays were ticked. */
 export function isDefaultDraft(draft: SettingsDraft): boolean {
-  const normalize = (d: SettingsDraft) => JSON.stringify({ ...d, workdays: [...d.workdays].sort((a, b) => a - b) });
-  return normalize(draft) === normalize(defaultDraft);
+  const sorted = (days: readonly number[]) => [...days].sort((a, b) => a - b).join();
+  const d = defaultDraft;
+  return (
+    draft.mode === d.mode &&
+    draft.net === d.net &&
+    draft.monthsPerYear === d.monthsPerYear &&
+    draft.weeklyHours === d.weeklyHours &&
+    sorted(draft.workdays) === sorted(d.workdays) &&
+    draft.vacationDays === d.vacationDays &&
+    draft.state === d.state
+  );
 }
 
 function annualNet(settings: Pick<Settings, "mode" | "net" | "monthsPerYear">): number {
