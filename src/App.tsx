@@ -7,7 +7,7 @@ import { ThemeToggle } from "./components/ThemeToggle";
 import { t } from "./i18n";
 import { CREDIT_PREFIX, pickQuip } from "./lib/quips";
 import { commitUrl, REPO_URL } from "./lib/repo";
-import { defaultDraft, evaluateSettings, sanitizeDraft, type SettingsDraft } from "./lib/settings";
+import { defaultDraft, evaluateSettings, isDefaultDraft, sanitizeDraft, type SettingsDraft } from "./lib/settings";
 import { clearAll, KEYS, loadJson, PREFIX, saveUnlessDefault } from "./lib/storage";
 import { sanitizeTheme, type ThemeChoice } from "./lib/theme";
 
@@ -38,14 +38,17 @@ export function App() {
   const outcome = useMemo(() => evaluateSettings(draft, year), [draft, year]);
   // Start on the settings view while the salary data is not usable yet.
   const [view, setView] = useState<"calculator" | "settings">(() => (outcome.ok ? "calculator" : "settings"));
+  // A returning user with their own stored data sees its errors at once, not only after leaving a field.
+  const [revealErrors, setRevealErrors] = useState(() => !isDefaultDraft(draft));
   // Bumped by "delete everything" so the settings form starts over like on a first visit.
-  const [formKey, setFormKey] = useState(0);
+  const [resetCount, setResetCount] = useState(0);
 
   function deleteEverything() {
     clearAll();
     setDraft({ ...defaultDraft, workdays: [...defaultDraft.workdays] });
     setTheme("system");
-    setFormKey((key) => key + 1);
+    setRevealErrors(false);
+    setResetCount((count) => count + 1);
   }
 
   return (
@@ -80,11 +83,17 @@ export function App() {
       <main>
         {/* Kept mounted (just hidden) so the entered amount survives a visit to the settings. */}
         <div hidden={view !== "calculator"}>
-          <Calculator settings={outcome} />
+          <Calculator outcome={outcome} />
         </div>
         {view === "settings" && (
           <div id="settings-panel">
-            <SettingsForm key={formKey} draft={draft} outcome={outcome} onChange={setDraft} />
+            <SettingsForm
+              key={resetCount}
+              draft={draft}
+              outcome={outcome}
+              revealErrors={revealErrors}
+              onChange={setDraft}
+            />
             <PrivacyPanel onDeleteAll={deleteEverything} />
           </div>
         )}

@@ -120,6 +120,13 @@ test("Wer Arbeitstage abwählt, bis keiner übrig bleibt, sieht den Fehler an de
   await expect(page.getByText(t.validation.noWorkingDaysLeft)).toBeVisible();
 });
 
+test("Erststart: Nach einem Abstecher in den Rechner bleiben nie berührte Felder ohne Fehler", async ({ page }) => {
+  await page.getByLabel(t.settings.vacationLabel).fill("28");
+  await page.getByRole("button", { name: t.app.navCalculator }).click();
+  await page.getByRole("button", { name: t.app.navSettings }).click();
+  await expect(page.getByText(t.validation.netMissing(t.settings.monthly))).toBeHidden();
+});
+
 test("Gespeicherte Daten ohne Arbeitstag: Start in den Einstellungen, Fehler sofort sichtbar", async ({ page }) => {
   await page.getByLabel(t.settings.netLabelMonthly).fill("3000");
   await page.getByLabel(t.settings.vacationLabel).fill("253");

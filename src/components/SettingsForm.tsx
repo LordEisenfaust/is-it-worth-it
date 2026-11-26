@@ -3,7 +3,6 @@ import { t } from "../i18n";
 import { formatEuro } from "../lib/format";
 import { STATE_CODES, STATE_NAMES, type StateCode } from "../lib/holidays";
 import {
-  defaultDraft,
   MAX_MONTHS,
   MIN_MONTHS,
   type IncomeMode,
@@ -22,24 +21,17 @@ const numberFormat = new Intl.NumberFormat(t.locale, { maximumFractionDigits: 2 
 
 const ALL_FIELDS: SettingsField[] = ["net", "monthsPerYear", "weeklyHours", "workdays", "vacationDays"];
 
-/** Whether the draft holds the defaults, ignoring the order in which workdays were ticked. */
-function isDefault(draft: SettingsDraft): boolean {
-  const normalize = (d: SettingsDraft) => JSON.stringify({ ...d, workdays: [...d.workdays].sort((a, b) => a - b) });
-  return normalize(draft) === normalize(defaultDraft);
-}
-
 interface Props {
   draft: SettingsDraft;
   /** The evaluated Gehaltsdaten: field errors, or the summary once they are usable. */
   outcome: SettingsOutcome;
+  /** Show every field's error at once (the app started with the user's own data); otherwise only after blur. */
+  revealErrors: boolean;
   onChange: (draft: SettingsDraft) => void;
 }
 
-export function SettingsForm({ draft, outcome, onChange }: Props) {
-  // Someone coming back with their own data sees its errors at once; a first start stays quiet until blur.
-  const [touched, setTouched] = useState<Set<SettingsField>>(() =>
-    isDefault(draft) ? new Set() : new Set(ALL_FIELDS),
-  );
+export function SettingsForm({ draft, outcome, revealErrors, onChange }: Props) {
+  const [touched, setTouched] = useState<Set<SettingsField>>(() => new Set(revealErrors ? ALL_FIELDS : []));
   const touch = (...fields: SettingsField[]) =>
     setTouched((current) => new Set([...current, ...fields]));
   const errors = outcome.ok ? {} : outcome.errors;

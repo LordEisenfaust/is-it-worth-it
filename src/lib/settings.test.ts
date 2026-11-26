@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { t } from "../i18n";
-import { defaultDraft, evaluateSettings, sanitizeDraft, type SettingsDraft } from "./settings";
+import { defaultDraft, evaluateSettings, isDefaultDraft, sanitizeDraft, type SettingsDraft } from "./settings";
 
 /** Defaults (Monatsnetto, 12 Gehälter, 40 h, Mo–Fr, 30 Urlaubstage, NRW) plus a net salary. */
 const valid: SettingsDraft = { ...defaultDraft, net: "2.500,50" };
@@ -116,6 +116,19 @@ describe("evaluateSettings – Feldfehler", () => {
       ok: false,
       errors: { vacationDays: t.validation.noWorkingDaysLeft },
     });
+  });
+});
+
+describe("isDefaultDraft", () => {
+  it("erkennt die Standardwerte, auch in anderer Reihenfolge der Arbeitstage", () => {
+    expect(isDefaultDraft(defaultDraft)).toBe(true);
+    expect(isDefaultDraft({ ...defaultDraft, workdays: [1, 2, 4, 5, 3] })).toBe(true);
+  });
+
+  it("erkennt eigene Gehaltsdaten", () => {
+    expect(isDefaultDraft(valid)).toBe(false);
+    expect(isDefaultDraft({ ...defaultDraft, vacationDays: "28" })).toBe(false);
+    expect(isDefaultDraft({ ...defaultDraft, workdays: [1, 2, 3, 4] })).toBe(false);
   });
 });
 

@@ -9,22 +9,22 @@ import { workTimeVerdict } from "../lib/verdict";
 
 interface Props {
   /** The evaluated Gehaltsdaten; their details are shown in the settings, not here. */
-  settings: SettingsOutcome;
+  outcome: SettingsOutcome;
 }
 
-export function Calculator({ settings }: Props) {
+export function Calculator({ outcome }: Props) {
   const [amountText, setAmountText] = useState("");
   // A different nudge on every page load; stays the same while the page is open.
   const [emptyPrompt] = useState(() => pickFrom(EMPTY_PROMPTS));
 
   const amount = parseAmount(amountText);
-  const info = settings.ok ? settings.info : null;
+  const info = outcome.ok ? outcome.info : null;
   const hours = amount.ok && info ? hoursForAmount(amount.amount, info.hourlyWage) : NaN;
   const verdict =
     info && Number.isFinite(hours) ? workTimeVerdict(hours, info.hoursPerDay, info.workdaysPerWeek) : null;
 
   let hint: string | null = null;
-  if (!settings.ok) hint = t.calculator.settingsMissing;
+  if (!outcome.ok) hint = t.calculator.settingsMissing;
   else if (amountText.trim() !== "" && !amount.ok) hint = amount.error;
 
   return (

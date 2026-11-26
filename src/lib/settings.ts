@@ -6,7 +6,7 @@ import { parseNumber } from "./parse";
 export type IncomeMode = "yearly" | "monthly";
 
 /** Validated settings used for calculations. Weekdays follow JavaScript: 0 = Sunday ... 6 = Saturday. */
-export interface Settings {
+interface Settings {
   mode: IncomeMode;
   /** Net income per year (mode "yearly") or per month (mode "monthly"), in euros. */
   net: number;
@@ -43,9 +43,18 @@ export const defaultDraft: SettingsDraft = {
   state: "NW",
 };
 
+/** Error text per field; a field without an entry is fine. */
+export type FieldErrors = Partial<Record<SettingsField, string>>;
+
 interface ValidationResult {
   settings: Settings | null;
-  errors: Partial<Record<SettingsField, string>>;
+  errors: FieldErrors;
+}
+
+/** Whether the draft holds the defaults, ignoring the order in which workdays were ticked. */
+export function isDefaultDraft(draft: SettingsDraft): boolean {
+  const normalize = (d: SettingsDraft) => JSON.stringify({ ...d, workdays: [...d.workdays].sort((a, b) => a - b) });
+  return normalize(draft) === normalize(defaultDraft);
 }
 
 function annualNet(settings: Pick<Settings, "mode" | "net" | "monthsPerYear">): number {
@@ -119,7 +128,7 @@ export interface WageInfo {
 /** The evaluated Gehaltsdaten: either the Netto-Stundenlohn with its summary, or errors per field. */
 export type SettingsOutcome =
   | { ok: true; info: WageInfo }
-  | { ok: false; errors: Partial<Record<SettingsField, string>> };
+  | { ok: false; errors: FieldErrors };
 
 /** Validates the form's draft and, if usable, computes the Netto-Stundenlohn for `year`. */
 export function evaluateSettings(draft: SettingsDraft, year: number): SettingsOutcome {
