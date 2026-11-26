@@ -181,6 +181,19 @@ test("Wer Arbeitstage abwählt, bis keiner übrig bleibt, sieht den Fehler an de
   await expect(page.getByText(t.validation.noWorkingDaysLeft)).toBeVisible();
 });
 
+test("Wer Arbeitstage abwählt, bis ein Tag über 24 Stunden hätte, sieht den Fehler an den Wochenstunden", async ({
+  page,
+}) => {
+  await page.getByLabel(t.settings.netLabelMonthly).fill("3000");
+  // The weekly hours stay at the default 40 and are never touched; only the workdays change.
+  for (const day of [2, 3, 4, 5]) await page.getByLabel(weekday(day), { exact: true }).uncheck();
+
+  await expect(page.getByText(t.validation.hoursPerDayTooMany)).toBeVisible();
+  await expect(page.getByLabel(t.settings.weeklyHoursLabel)).toHaveAttribute("aria-invalid", "true");
+  await page.getByRole("button", { name: t.app.navCalculator }).click();
+  await expect(result(page)).toContainText(t.calculator.settingsMissing);
+});
+
 test("Erststart: Nach einem Abstecher in den Rechner bleiben nie berührte Felder ohne Fehler", async ({ page }) => {
   await page.getByLabel(t.settings.vacationLabel).fill("28");
   await page.getByRole("button", { name: t.app.navCalculator }).click();
@@ -215,6 +228,22 @@ test("Darstellung lässt sich umschalten und wird gemerkt", async ({ page }) => 
   await expect(root).toHaveAttribute("data-theme", "dark");
   await page.getByLabel(t.theme.system, { exact: true }).check();
   await expect(root).not.toHaveAttribute("data-theme");
+});
+
+test.describe("Startskript", () => {
+  // The service worker would serve the bundles from its cache, past page.route.
+  test.use({ serviceWorkers: "block" });
+
+  test("setzt eine gespeicherte Darstellung schon ohne das JavaScript der App", async ({ page }) => {
+    await page.getByLabel(t.theme.dark, { exact: true }).check();
+    // Applied means the effects ran, so the choice is saved before the reload.
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await page.route("**/assets/*.js", (route) => route.abort());
+    await page.reload();
+
+    await expect(page.getByLabel(t.theme.dark, { exact: true })).toHaveCount(0);
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  });
 });
 
 test("Alle Daten löschen leert den Speicher vollständig", async ({ page }) => {

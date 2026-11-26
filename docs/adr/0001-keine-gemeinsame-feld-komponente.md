@@ -14,7 +14,7 @@ Es gibt keine gemeinsame Feld-Komponente. Die Felder bleiben einzeln im Formular
 
 - Die Felder unterscheiden sich im Detail: Netto mit Euro-Zeichen, Monatsgehälter als Slider ohne Fehlertext, Arbeitstage als Gruppe von Checkboxen in einem `fieldset`, Wochenstunden und Urlaubstage als Textfelder.
 - Eine gemeinsame Komponente bräuchte für diese Unterschiede fast so viele Optionen, wie sie Markup spart. Sie wäre shallow: Das Interface wäre ungefähr so groß wie die Implementation.
-- Die Regel, wann ein Fehler sichtbar wird (`touched`, `revealErrors`), liegt schon an einer Stelle im Formular. Eine Feld-Komponente würde daran nichts verbessern.
+- Die Regel, wann ein Fehler sichtbar wird, liegt an einer Stelle: `visibleErrors` in `src/lib/settings.ts` (seit Issue #50; vorher `touched` und `revealErrors` im Formular). Das Formular zeigt nur noch an. Eine Feld-Komponente würde daran nichts verbessern.
 
 ## Folgen
 

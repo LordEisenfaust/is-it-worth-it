@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { t } from "../i18n";
-import { defaultDraft, evaluateSettings, isDefaultDraft, sanitizeDraft, type SettingsDraft } from "./settings";
+import {
+  ALL_INPUTS,
+  defaultDraft,
+  evaluateSettings,
+  isDefaultDraft,
+  sanitizeDraft,
+  visibleErrors,
+  type SettingsDraft,
+  type SettingsInput,
+} from "./settings";
 
 /** Defaults (Monatsnetto, 12 Gehälter, 40 h, Mo–Fr, 30 Urlaubstage, NRW) plus a net salary. */
 const valid: SettingsDraft = { ...defaultDraft, net: "2.500,50" };
@@ -98,20 +107,28 @@ describe("evaluateSettings – Feldfehler", () => {
     expect(errors({ ...valid, weeklyHours: "200" }).weeklyHours).toBeDefined();
     expect(errors({ ...valid, weeklyHours: "100", workdays: [1, 2, 3] }).weeklyHours).toBeDefined();
     expect(evaluateSettings({ ...valid, weeklyHours: "168", workdays: [0, 1, 2, 3, 4, 5, 6] }, 2026).ok).toBe(true);
-    expect(errors({ ...valid, weeklyHours: "168,5" }).weeklyHours).toBe(t.validation.weeklyHoursTooMany);
+    expect(errors({ ...valid, weeklyHours: "168,5" }).weeklyHours).toEqual({
+      text: t.validation.weeklyHoursTooMany,
+      sources: ["weeklyHours"],
+    });
   });
 
   it("verlangt mindestens eine Stunde pro Arbeitstag", () => {
     // 3 Wochenstunden an Mo–Fr wären 36 Minuten am Tag; dann wären 45 Minuten Arbeit mehr als ein Arbeitstag.
-    expect(errors({ ...valid, weeklyHours: "3" }).weeklyHours).toBe(t.validation.hoursPerDayTooFew);
-    expect(errors({ ...valid, weeklyHours: "4,9" }).weeklyHours).toBe(t.validation.hoursPerDayTooFew);
+    // Steht an den Wochenstunden, entsteht aber ebenso aus den gewählten Arbeitstagen.
+    const tooFew = { text: t.validation.hoursPerDayTooFew, sources: ["weeklyHours", "workdays"] };
+    expect(errors({ ...valid, weeklyHours: "3" }).weeklyHours).toEqual(tooFew);
+    expect(errors({ ...valid, weeklyHours: "4,9" }).weeklyHours).toEqual(tooFew);
     expect(info({ ...valid, weeklyHours: "5" }).hoursPerDay).toBe(1);
     expect(info({ ...valid, weeklyHours: "1", workdays: [3] }).hoursPerDay).toBe(1);
   });
 
   it("begrenzt das Netto nach oben", () => {
     expect(evaluateSettings({ ...valid, net: "1.000.000.000" }, 2026).ok).toBe(true);
-    expect(errors({ ...valid, net: "1.000.000.001" }).net).toBe(t.validation.netTooLarge(t.settings.monthly));
+    expect(errors({ ...valid, net: "1.000.000.001" }).net).toEqual({
+      text: t.validation.netTooLarge(t.settings.monthly),
+      sources: ["net"],
+    });
   });
 
   it("verlangt mindestens einen Arbeitstag", () => {
@@ -124,8 +141,11 @@ describe("evaluateSettings – Feldfehler", () => {
     expect(errors({ ...valid, vacationDays: "2,5" }).vacationDays).toBeDefined();
     expect(errors({ ...valid, vacationDays: "" }).vacationDays).toBeDefined();
     // 366 is a valid entry but leaves no working day; 367 is rejected as such.
-    expect(errors({ ...valid, vacationDays: "366" }).vacationDays).toBe(t.validation.noWorkingDaysLeft);
-    expect(errors({ ...valid, vacationDays: "367" }).vacationDays).toBe(t.validation.vacationTooMany);
+    expect(errors({ ...valid, vacationDays: "366" }).vacationDays?.text).toBe(t.validation.noWorkingDaysLeft);
+    expect(errors({ ...valid, vacationDays: "367" }).vacationDays).toEqual({
+      text: t.validation.vacationTooMany,
+      sources: ["vacationDays"],
+    });
   });
 
   it("begrenzt die Monatsgehälter auf 12 bis 16", () => {
@@ -139,8 +159,50 @@ describe("evaluateSettings – Feldfehler", () => {
     expect(evaluateSettings({ ...valid, vacationDays: "252" }, 2026).ok).toBe(true);
     expect(evaluateSettings({ ...valid, vacationDays: "253" }, 2026)).toEqual({
       ok: false,
-      errors: { vacationDays: t.validation.noWorkingDaysLeft },
+      errors: {
+        vacationDays: { text: t.validation.noWorkingDaysLeft, sources: ["workdays", "vacationDays", "state"] },
+      },
     });
+  });
+});
+
+describe("visibleErrors", () => {
+  const visible = (draft: SettingsDraft, touched: SettingsInput[]) =>
+    visibleErrors(evaluateSettings(draft, 2026), new Set(touched));
+
+  it("zeigt zu viele Stunden pro Tag an den Wochenstunden, sobald die Arbeitstage berührt sind", () => {
+    // 40 Wochenstunden an einem einzigen Tag; die Wochenstunden selbst wurden nie berührt.
+    expect(visible({ ...valid, workdays: [1] }, ["workdays"])).toEqual({
+      weeklyHours: t.validation.hoursPerDayTooMany,
+    });
+  });
+
+  it("zeigt „kein Arbeitstag übrig“ an den Urlaubstagen, sobald das Bundesland berührt ist", () => {
+    // 252 Urlaubstage: in NRW 2026 bleibt ein Arbeitstag, in Bayern (ein Feiertag mehr auf Mo–Fr) keiner.
+    const nrw = { ...valid, vacationDays: "252" };
+    expect(visible(nrw, ["state"])).toEqual({});
+    expect(visible({ ...nrw, state: "BY" }, ["state"])).toEqual({ vacationDays: t.validation.noWorkingDaysLeft });
+  });
+
+  it("zeigt einen Fehler eines einzelnen Felds erst, wenn dieses Feld berührt ist", () => {
+    const draft = { ...valid, weeklyHours: "viel" };
+    expect(visible(draft, ["workdays", "vacationDays", "state"])).toEqual({});
+    expect(visible(draft, ["weeklyHours"])).toEqual({ weeklyHours: t.validation.weeklyHoursInvalid });
+  });
+
+  it("zeigt alles, wenn alles berührt ist, und nichts, wenn nichts berührt ist", () => {
+    const draft = { ...defaultDraft, weeklyHours: "", workdays: [], vacationDays: "-1" };
+    expect(visible(draft, [...ALL_INPUTS])).toEqual({
+      net: t.validation.netMissing(t.settings.monthly),
+      weeklyHours: t.validation.weeklyHoursMissing,
+      workdays: t.validation.workdaysMissing,
+      vacationDays: t.validation.vacationInvalid,
+    });
+    expect(visible(draft, [])).toEqual({});
+  });
+
+  it("zeigt bei nutzbaren Gehaltsdaten keine Fehler", () => {
+    expect(visible(valid, [...ALL_INPUTS])).toEqual({});
   });
 });
 
