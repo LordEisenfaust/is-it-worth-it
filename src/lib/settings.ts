@@ -89,8 +89,11 @@ function validateDraft(draft: SettingsDraft): ValidationResult {
 
   const workdays = [...new Set(draft.workdays)].filter((d) => Number.isInteger(d) && d >= 0 && d <= 6);
   if (workdays.length === 0) errors.workdays = v.workdaysMissing;
-  else if (!errors.weeklyHours && weeklyHours / workdays.length > 24) {
-    errors.weeklyHours = v.hoursPerDayTooMany;
+  else if (!errors.weeklyHours) {
+    // Below one hour per day the work time could not be split into minutes, hours and days in that order.
+    const hoursPerDay = weeklyHours / workdays.length;
+    if (hoursPerDay > 24) errors.weeklyHours = v.hoursPerDayTooMany;
+    else if (hoursPerDay < 1) errors.weeklyHours = v.hoursPerDayTooFew;
   }
 
   const vacationDays = parseNumber(draft.vacationDays);
@@ -152,8 +155,10 @@ function computeWage(settings: Settings, year: number): WageInfo | null {
     onWorkday: settings.workdays.includes(h.date.getUTCDay()),
   }));
   const holidaysOnWorkdays: Holiday[] = allHolidays.filter((h) => h.onWorkday).map(({ name, date }) => ({ name, date }));
+  // Two holidays can share a date (Christi Himmelfahrt on 1 May, as in 2008); that day is off only once.
+  const holidayDaysOnWorkdays = new Set(holidaysOnWorkdays.map((h) => h.date.getTime())).size;
   const workingDaysPerYear =
-    countWeekdaysInYear(year, settings.workdays) - holidaysOnWorkdays.length - settings.vacationDays;
+    countWeekdaysInYear(year, settings.workdays) - holidayDaysOnWorkdays - settings.vacationDays;
   if (workingDaysPerYear <= 0) return null;
 
   // Validated settings guarantee net > 0, weeklyHours > 0 and at least one workday, so this divides by > 0.

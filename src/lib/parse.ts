@@ -4,11 +4,12 @@ const GERMAN_NUMBER = /^\d{1,3}(\.\d{3})+(,\d+)?$|^\d+(,\d+)?$/;
 const PLAIN_NUMBER = /^\d+(\.\d+)?$/;
 
 /**
- * Parses user input such as "1.234,56", "1234,56" or "1234.56".
+ * Parses user input such as "1.234,56", "1234,56", "1234.56" or "€ 50".
  * Returns NaN for empty, negative or otherwise malformed input.
  */
 export function parseNumber(input: string): number {
-  const text = input.trim().replace(/\s/g, "").replace(/€$/, "");
+  // One euro sign is allowed, in front ("€ 50") or behind ("50 €").
+  const text = input.trim().replace(/\s/g, "").replace(/^€(?=[^€]*$)|€$/, "");
   if (text === "") return NaN;
   if (GERMAN_NUMBER.test(text)) return Number(text.replace(/\./g, "").replace(",", "."));
   if (PLAIN_NUMBER.test(text)) return Number(text);

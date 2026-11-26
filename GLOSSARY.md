@@ -20,7 +20,9 @@ Zwei Bedeutungen, im Code getrennt benannt:
 
 ## Netto-Stundenlohn
 
-`hourlyWage`: Jahresnetto / (Arbeitstage pro Jahr × Stunden pro Arbeitstag). Stunden pro Arbeitstag (`hoursPerDay`) = Wochenstunden / Arbeitstage pro Woche.
+`hourlyWage`: Jahresnetto / (Arbeitstage pro Jahr × Stunden pro Arbeitstag). Stunden pro Arbeitstag (`hoursPerDay`) = Wochenstunden / Arbeitstage pro Woche. Sie liegen zwischen 1 und 24; außerhalb davon sind die Gehaltsdaten nicht nutzbar.
+
+Fallen zwei Feiertage auf denselben Tag, zählt dieser Tag nur einmal.
 
 ## Ergebnis
 

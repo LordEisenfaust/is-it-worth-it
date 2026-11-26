@@ -74,3 +74,46 @@ describe("formatHoursPerDay", () => {
     expect(formatHoursPerDay(20 / 3)).toBe("6,67");
   });
 });
+
+describe("splitWorkTime – Regeln für alle Werte", () => {
+  const UNIT_HOURS: Record<string, (hoursPerDay: number) => number> = {
+    Minute: () => 1 / 60,
+    Minuten: () => 1 / 60,
+    Stunde: () => 1,
+    Stunden: () => 1,
+    Tag: (hpd) => hpd,
+    Tage: (hpd) => hpd,
+  };
+  const ORDER = { minutes: 0, hours: 1, days: 2 } as const;
+
+  /** Reads the hours back from a text such as "3 Tage und 6 Stunden". */
+  function hoursOf(text: string, hoursPerDay: number): number {
+    const parts = [...text.matchAll(/(\d+) (\p{L}+)/gu)];
+    expect(parts.length).toBeGreaterThanOrEqual(1);
+    expect(parts.length).toBeLessThanOrEqual(2);
+    return parts.reduce((sum, [, n, unit]) => sum + Number(n) * UNIT_HOURS[unit](hoursPerDay), 0);
+  }
+
+  it.each([1, 20 / 3, 7.7, 8, 9.375, 24])("bei %d h pro Tag: höchstens zwei Einheiten, nah an der echten Zeit, ohne Überlauf", (hoursPerDay) => {
+    let previous = { order: 0, days: 0 };
+    for (let halfMinutes = 0; halfMinutes <= hoursPerDay * 12 * 120; halfMinutes++) {
+      const hours = halfMinutes / 120 + 1e-9 * (halfMinutes % 3);
+      const parts = splitWorkTime(hours, hoursPerDay)!;
+      // Minutes and hours are exact to the minute, days to the hour.
+      const tolerance = parts.unit === "days" ? 0.5 + 1 / 120 : 1 / 120;
+      expect(Math.abs(hoursOf(parts.text, hoursPerDay) - hours)).toBeLessThanOrEqual(tolerance + 1e-9);
+      // The smaller unit never reaches the bigger one ("60 Minuten", "8 Stunden" in an 8-hour day).
+      const [big, rest = 0] = [...parts.text.matchAll(/(\d+) /g)].map(([, n]) => Number(n));
+      if (parts.unit === "hours") {
+        expect(rest).toBeLessThan(60);
+        expect(big + rest / 60).toBeLessThan(hoursPerDay);
+      }
+      if (parts.unit === "days") expect(rest).toBeLessThan(hoursPerDay);
+      if (parts.unit === "minutes") expect(big).toBeLessThan(60);
+      // Units and whole days only ever grow with the working time.
+      expect(ORDER[parts.unit]).toBeGreaterThanOrEqual(previous.order);
+      expect(parts.days).toBeGreaterThanOrEqual(previous.days);
+      previous = { order: ORDER[parts.unit], days: parts.days };
+    }
+  });
+});

@@ -57,7 +57,8 @@ function workTimeVerdict(parts: WorkTimeParts, hours: number, info: WageInfo): V
   }
 
   if (parts.unit === "hours") {
-    const share = hours / hoursPerDay;
+    // Measured on the rounded minutes the headline shows, so "4 Stunden" of an 8-hour day counts as half.
+    const share = Math.round(hours * 60) / (hoursPerDay * 60);
     return {
       level: 2,
       headline: v.level2Headline(parts.text),
