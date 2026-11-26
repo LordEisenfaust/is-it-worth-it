@@ -1,35 +1,41 @@
 import { describe, expect, it } from "vitest";
-import { CREDIT_PREFIX, EMPTY_PROMPTS, pickFrom, pickQuip, QUIPS } from "./quips";
+import { t } from "../i18n";
+import { pickFrom } from "./quips";
+
+function expectDistinctAndFilled(list: readonly string[]) {
+  expect(list.length).toBeGreaterThan(0);
+  expect(new Set(list).size).toBe(list.length);
+  for (const text of list) expect(text.trim()).not.toBe("");
+}
 
 describe("Sprüche in der Fußzeile", () => {
-  it("enthält 40 verschiedene, nicht leere Sprüche", () => {
-    expect(QUIPS).toHaveLength(40);
-    expect(new Set(QUIPS).size).toBe(40);
-    for (const quip of QUIPS) expect(quip.trim()).not.toBe("");
+  it("gibt es mindestens einen, alle verschieden und keiner leer (die Anzahl ist frei)", () => {
+    expectDistinctAndFilled(t.footer.quips);
   });
 
   it("endet das Präfix mit Claude als Satzsubjekt", () => {
     // The model name itself is configured in one place (MODEL in src/i18n/de.ts), so it is not pinned here.
-    expect(CREDIT_PREFIX).toMatch(/^Vibecoded with ♥️ by Claude [^–]+ –$/);
-  });
-
-  it("wählt über den ganzen Bereich aus und bleibt in den Grenzen", () => {
-    expect(pickQuip(() => 0)).toBe(QUIPS[0]);
-    expect(pickQuip(() => 0.999999)).toBe(QUIPS[39]);
-    expect(pickQuip(() => 0.5)).toBe(QUIPS[20]);
-    expect(pickQuip(() => 1)).toBe(QUIPS[39]);
-    expect(pickQuip(() => -0.1)).toBe(QUIPS[0]);
+    expect(t.footer.creditPrefix).toMatch(/^Vibecoded with ♥️ by Claude [^–]+ –$/);
   });
 });
 
 describe("Texte im leeren Ergebniskasten", () => {
-  it("enthält sechs verschiedene Texte", () => {
-    expect(EMPTY_PROMPTS).toHaveLength(6);
-    expect(new Set(EMPTY_PROMPTS).size).toBe(6);
+  it("gibt es mindestens einen, alle verschieden und keiner leer", () => {
+    expectDistinctAndFilled(t.calculator.emptyPrompts);
+  });
+});
+
+describe("pickFrom", () => {
+  const list = ["a", "b", "c", "d"];
+
+  it("wählt über den ganzen Bereich aus", () => {
+    expect(pickFrom(list, () => 0)).toBe("a");
+    expect(pickFrom(list, () => 0.5)).toBe("c");
+    expect(pickFrom(list, () => 0.999999)).toBe("d");
   });
 
-  it("wählt über pickFrom aus der Liste", () => {
-    expect(pickFrom(EMPTY_PROMPTS, () => 0)).toBe(EMPTY_PROMPTS[0]);
-    expect(pickFrom(EMPTY_PROMPTS, () => 0.99)).toBe(EMPTY_PROMPTS[5]);
+  it("bleibt bei Zufallswerten außerhalb von [0, 1) in den Grenzen", () => {
+    expect(pickFrom(list, () => 1)).toBe("d");
+    expect(pickFrom(list, () => -0.1)).toBe("a");
   });
 });

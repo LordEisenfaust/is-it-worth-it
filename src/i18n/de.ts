@@ -21,10 +21,6 @@ export const de = {
     navLabel: "Bereiche",
     navCalculator: "Rechner",
     navSettings: "Einstellungen",
-    privacyFooter: "Alle Angaben bleiben lokal in deinem Browser. Details unter „Einstellungen“.",
-    version: "Version",
-    commitTitle: "Diesen Stand auf GitHub ansehen",
-    repoLabel: "Quellcode auf GitHub",
   },
 
   theme: {
@@ -141,9 +137,15 @@ export const de = {
   },
 
   footer: {
+    /** Shown in the calculator view only. */
+    privacyNote: "Alle Angaben bleiben lokal in deinem Browser. Details unter „Einstellungen“.",
+    /** Text around the commit link: "Version 0.4.14 (<commit>) ·", followed by the GitHub logo. */
+    versionLine: (version: string) => ({ before: `Version ${version} (`, after: ") ·" }),
+    commitTitle: "Diesen Stand auf GitHub ansehen",
+    repoLabel: "Quellcode auf GitHub",
     /** Fixed start of the credit line; every quip continues it with Claude as the subject. */
     creditPrefix: `Vibecoded with ♥️ by ${MODEL} –`,
-    /** One is shown at random on every page load (list also in docs/footer-sprueche.md). */
+    /** One is shown at random on every page load; add or drop quips freely (rules in docs/footer-sprueche.md). */
     quips: [
       // Rund ums Arbeiten
       "Netto-Stundenlohn: 0,00 €. Beschwert sich trotzdem nicht.",

@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
+import { AppFooter } from "./components/AppFooter";
 import { Calculator } from "./components/Calculator";
-import { GitHubIcon } from "./components/GitHubIcon";
 import { PrivacyPanel } from "./components/PrivacyPanel";
 import { SettingsForm } from "./components/SettingsForm";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { t } from "./i18n";
-import { CREDIT_PREFIX, pickQuip } from "./lib/quips";
-import { commitUrl, REPO_URL } from "./lib/repo";
 import { loadPreferences, resetPreferences, savePreferences } from "./lib/preferences";
 import { evaluateSettings, isDefaultDraft, type SettingsDraft } from "./lib/settings";
 import type { ThemeChoice } from "./lib/theme";
@@ -15,9 +13,6 @@ export function App() {
   const [initial] = useState(loadPreferences);
   const [draft, setDraft] = useState<SettingsDraft>(initial.draft);
   const [theme, setTheme] = useState<ThemeChoice>(initial.theme);
-  // A new quip on every page load; nothing is stored.
-  const [quip] = useState(pickQuip);
-  const commitLink = commitUrl(__APP_COMMIT__);
 
   useEffect(() => savePreferences({ draft, theme }), [draft, theme]);
   useEffect(() => {
@@ -90,28 +85,7 @@ export function App() {
           </div>
         )}
       </main>
-      {view === "calculator" && (
-        <footer className="muted">{t.app.privacyFooter}</footer>
-      )}
-      <div className="app-meta">
-        <p>
-          {t.app.version} {__APP_VERSION__} (
-          {commitLink ? (
-            <a href={commitLink} target="_blank" rel="noopener noreferrer" title={t.app.commitTitle}>
-              {__APP_COMMIT__}
-            </a>
-          ) : (
-            __APP_COMMIT__
-          )}
-          ) ·{" "}
-          <a href={REPO_URL} target="_blank" rel="noopener noreferrer" aria-label={t.app.repoLabel} title={t.app.repoLabel}>
-            <GitHubIcon />
-          </a>
-        </p>
-        <p>
-          {CREDIT_PREFIX} {quip}
-        </p>
-      </div>
+      <AppFooter showPrivacyNote={view === "calculator"} />
     </>
   );
 }

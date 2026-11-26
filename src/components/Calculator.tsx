@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { t } from "../i18n";
-import { EMPTY_PROMPTS, pickFrom } from "../lib/quips";
+import { pickFrom } from "../lib/quips";
 import type { SettingsOutcome } from "../lib/settings";
 import { evaluateAmount } from "../lib/verdict";
 
@@ -12,7 +12,7 @@ interface Props {
 export function Calculator({ outcome }: Props) {
   const [amountText, setAmountText] = useState("");
   // A different nudge on every page load; stays the same while the page is open.
-  const [emptyPrompt] = useState(() => pickFrom(EMPTY_PROMPTS));
+  const [emptyPrompt] = useState(() => pickFrom(t.calculator.emptyPrompts));
 
   const result = evaluateAmount(amountText, outcome);
 
