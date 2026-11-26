@@ -14,7 +14,7 @@ import {
   type SettingsDraft,
   type SettingsInput,
 } from "./lib/settings";
-import type { ThemeChoice } from "./lib/theme";
+import { applyTheme, type ThemeChoice } from "./lib/theme";
 
 export function App() {
   const [initial] = useState(loadPreferences);
@@ -22,11 +22,7 @@ export function App() {
   const [theme, setTheme] = useState<ThemeChoice>(initial.theme);
 
   useEffect(() => savePreferences({ draft, theme }), [draft, theme]);
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "system") root.removeAttribute("data-theme");
-    else root.setAttribute("data-theme", theme);
-  }, [theme]);
+  useEffect(() => applyTheme(theme, document.documentElement), [theme]);
 
   const year = new Date().getFullYear();
   const outcome = useMemo(() => evaluateSettings(draft, year), [draft, year]);
