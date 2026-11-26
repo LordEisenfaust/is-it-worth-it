@@ -5,10 +5,13 @@
 // set PW_CHROMIUM_PATH to use an installed one instead).
 import { readFileSync, writeFileSync } from "node:fs";
 import { chromium } from "@playwright/test";
+// Straight from de.ts: src/i18n/index.ts imports "./de" without extension, which plain Node cannot resolve.
 import { de as t } from "../src/i18n/de.ts";
+import { ACCENT } from "./brand.ts";
 
 const template = readFileSync(new URL("./icons/hourglass.svg.tpl", import.meta.url), "utf8");
-const svg = ({ radius, scale }) => template.replace("{{RADIUS}}", radius).replace("{{SCALE}}", scale);
+const svg = ({ radius, scale }) =>
+  template.replace("{{ACCENT}}", ACCENT).replace("{{RADIUS}}", radius).replace("{{SCALE}}", scale);
 
 // "any": rounded like the favicon. "maskable" and Apple: full-bleed, the system applies its own shape;
 // the hourglass is shrunk to stay inside the maskable safe zone (inner 80 % circle).

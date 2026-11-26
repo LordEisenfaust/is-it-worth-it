@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { serviceWorker } from "./pwa-plugin.ts";
+import { pwa, serviceWorker } from "./pwa-plugin.ts";
 
 type Listener = (event: FakeEvent) => void;
 interface FakeEvent {
@@ -9,7 +9,7 @@ interface FakeEvent {
 }
 
 /** Runs the generated sw.js against stand-ins for the service worker globals and records what it does. */
-function load(files = ["./", "index.html", "assets/app-1a2b.js"]) {
+function load(files = ["./", "index.html", "assets/app-1a2b.js"], existingCaches: string[] = []) {
   const listeners: Record<string, Listener> = {};
   const cached = new Map<string, unknown>([
     ["./", "cached page"],
@@ -21,7 +21,7 @@ function load(files = ["./", "index.html", "assets/app-1a2b.js"]) {
   };
   const caches = {
     open: vi.fn(async () => cache),
-    keys: vi.fn(async () => []),
+    keys: vi.fn(async () => existingCaches),
     delete: vi.fn(async () => true),
     match: vi.fn(async (key: unknown) => cached.get(typeof key === "string" ? key : (key as { url: string }).url)),
   };
@@ -38,7 +38,7 @@ function load(files = ["./", "index.html", "assets/app-1a2b.js"]) {
       readonly init: RequestInit,
     ) {}
   }
-  new Function("self", "caches", "fetch", "Request", serviceWorker("iiwi-test", files))(self, caches, fetch, FakeRequest);
+  new Function("self", "caches", "fetch", "Request", serviceWorker({ version: "1.2.3", commit: "abc1234" }, files))(self, caches, fetch, FakeRequest);
 
   /** Fires an event and waits for what the worker handed to waitUntil/respondWith. */
   async function fire(type: string, request?: FakeEvent["request"]) {
@@ -52,6 +52,14 @@ function load(files = ["./", "index.html", "assets/app-1a2b.js"]) {
 const page = { method: "GET", url: "https://lohnt.es/", mode: "navigate" };
 
 describe("Service Worker", () => {
+  it("legt den Cache mit Version und Commit an und löscht nur eigene alte Caches", async () => {
+    const sw = load(undefined, ["iiwi-0.4.20-aaaaaaa", "iiwi-1.2.3-abc1234", "fremde-app-v1"]);
+    await sw.fire("install");
+    expect(sw.caches.open).toHaveBeenCalledWith("iiwi-1.2.3-abc1234");
+    await sw.fire("activate");
+    expect(sw.caches.delete.mock.calls).toEqual([["iiwi-0.4.20-aaaaaaa"]]);
+  });
+
   it("lädt beim Installieren alle Dateien am HTTP-Cache vorbei (sonst bis zu 10 Minuten alter Stand)", async () => {
     const sw = load();
     await sw.fire("install");
@@ -86,5 +94,20 @@ describe("Service Worker", () => {
     const sw = load();
     expect(await sw.fire("fetch", { method: "GET", url: "https://github.com/", mode: "navigate" })).toBeUndefined();
     expect(sw.fetch).not.toHaveBeenCalled();
+  });
+});
+
+describe("Manifest und Link-Vorschau", () => {
+  const plugin = pwa({ version: "1.2.3", commit: "abc1234" });
+  // The hooks are plain functions here; Vite would call them with its own context.
+  const call = (hook: unknown, self: unknown = {}) => (hook as (this: unknown) => unknown).call(self);
+
+  it("übernehmen die Sprache aus dem Textkatalog", () => {
+    const tags = call(plugin.transformIndexHtml) as { attrs: Record<string, string> }[];
+    expect(tags.find((tag) => tag.attrs.property === "og:locale")?.attrs.content).toBe("de_DE");
+
+    let manifest = "";
+    call(plugin.generateBundle, { emitFile: (file: { source: string }) => void (manifest = file.source) });
+    expect(JSON.parse(manifest)).toMatchObject({ lang: "de", theme_color: "#f26b1d", background_color: "#f4f4f2" });
   });
 });
