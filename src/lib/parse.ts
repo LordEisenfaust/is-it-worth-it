@@ -15,9 +15,9 @@ export function parseNumber(input: string): number {
   return NaN;
 }
 
-export type AmountResult = { ok: true; amount: number } | { ok: false; error: string };
+export type ParsedAmount = { ok: true; amount: number } | { ok: false; error: string };
 
-export function parseAmount(input: string): AmountResult {
+export function parseAmount(input: string): ParsedAmount {
   if (input.trim() === "") return { ok: false, error: t.validation.amountMissing };
   const amount = parseNumber(input);
   if (!Number.isFinite(amount)) return { ok: false, error: t.validation.amountInvalid };

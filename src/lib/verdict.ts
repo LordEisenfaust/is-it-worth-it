@@ -1,10 +1,16 @@
 import { t } from "../i18n";
 import { formatEuro, formatHoursMinutes, formatWeeksDays, splitWorkTime, type WorkTimeParts } from "./format";
 import { parseAmount } from "./parse";
-import type { SettingsOutcome } from "./settings";
+import type { SettingsOutcome, WageInfo } from "./settings";
 
 /** 1 = under an hour, 2 = under a working day, 3 = under a working week, 4 = a week or more. */
 export type VerdictLevel = 1 | 2 | 3 | 4;
+
+interface Verdict {
+  level: VerdictLevel;
+  headline: string;
+  comment: string;
+}
 
 /** What the result box shows for the entered Betrag. */
 export type AmountResult =
@@ -12,7 +18,7 @@ export type AmountResult =
   /** `cause` says where the problem lies: the Gehaltsdaten or the entered Betrag. */
   | { kind: "hint"; text: string; cause: "settings" | "amount" }
   /** `greyLine` holds the Betrag and the exact working time from Stufe 3 on; below that the headline says it all. */
-  | { kind: "verdict"; level: VerdictLevel; headline: string; comment: string; greyLine: string | null };
+  | (Verdict & { kind: "verdict"; greyLine: string | null });
 
 /**
  * Turns the entered Betrag into what the result box shows. The verdict's tone escalates with the amount
@@ -24,24 +30,21 @@ export function evaluateAmount(amountText: string, outcome: SettingsOutcome): Am
   const amount = parseAmount(amountText);
   if (!amount.ok) return { kind: "hint", text: amount.error, cause: "amount" };
 
-  const { hourlyWage, hoursPerDay, workdaysPerWeek } = outcome.info;
-  // Usable Gehaltsdaten guarantee hourlyWage > 0 and hoursPerDay > 0, so this always splits.
-  const hours = amount.amount / hourlyWage;
-  const parts = splitWorkTime(hours, hoursPerDay);
+  const { info } = outcome;
+  const hours = amount.amount / info.hourlyWage;
+  // Unreachable: usable Gehaltsdaten have hourlyWage > 0 and hoursPerDay > 0, and a parsed Betrag is > 0, so the
+  // hours are finite and split. Should that ever break, show the empty box rather than crash the page.
+  const parts = splitWorkTime(hours, info.hoursPerDay);
   if (!parts) return { kind: "empty" };
 
-  const verdict = workTimeVerdict(parts, hours, hoursPerDay, workdaysPerWeek);
+  const verdict = workTimeVerdict(parts, hours, info);
   const greyLine =
     verdict.level >= 3 ? t.verdict.greyLine(formatEuro(amount.amount), formatHoursMinutes(hours)) : null;
   return { kind: "verdict", ...verdict, greyLine };
 }
 
-function workTimeVerdict(
-  parts: WorkTimeParts,
-  hours: number,
-  hoursPerDay: number,
-  workdaysPerWeek: number,
-): { level: VerdictLevel; headline: string; comment: string } {
+function workTimeVerdict(parts: WorkTimeParts, hours: number, info: WageInfo): Verdict {
+  const { hoursPerDay, workdaysPerWeek } = info;
   const v = t.verdict;
 
   if (parts.unit === "minutes") {

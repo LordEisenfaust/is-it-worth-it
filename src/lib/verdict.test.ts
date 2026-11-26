@@ -3,7 +3,10 @@ import { t } from "../i18n";
 import type { SettingsOutcome } from "./settings";
 import { evaluateAmount } from "./verdict";
 
-/** Gehaltsdaten with 10 € per hour and 8 h per working day, so an amount is hours × 10. */
+/**
+ * Gehaltsdaten with 10 € per hour and 8 h per working day, so an amount is hours × 10.
+ * Only hourlyWage, hoursPerDay and workdaysPerWeek matter for the result; the other fields are placeholders.
+ */
 function usable(workdaysPerWeek = 5): SettingsOutcome {
   return {
     ok: true,
