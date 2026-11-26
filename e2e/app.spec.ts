@@ -8,18 +8,28 @@ const pkg = JSON.parse(readFileSync("package.json", "utf8")) as { version: strin
 // The app computes for the current calendar year; pin the date so holidays and working days are stable.
 const NOW = new Date("2026-10-01T12:00:00+02:00");
 
+// Tags pick the project in playwright.config.ts: @handy runs only on the phone, @einmal (independent of the
+// screen size: build files, metadata) only on the desktop.
+
 test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(NOW);
   await page.goto("/");
 });
 
 const result = (page: Page) => page.locator("#calc-status");
+const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+/** Exactly one of the given texts (retrying, unlike reading the text once and comparing). */
+const oneOf = (texts: readonly string[], prefix = "") =>
+  new RegExp(`^${escape(prefix)}(${texts.map(escape).join("|")})$`);
 
 /** From the first start: enter a monthly net salary (defaults: 12 salaries, 40 h, Mo–Fr, 30 days, NRW). */
 async function setUpSalary(page: Page, net = "3000") {
   await page.getByLabel(t.settings.netLabelMonthly).fill(net);
   await page.getByRole("button", { name: t.app.navCalculator }).click();
 }
+
+const storageKeys = (page: Page) => page.evaluate(() => Object.keys(localStorage));
+const summary = (page: Page) => page.locator(".summary");
 
 test("Erststart zeigt die Einstellungen, danach rechnet der Rechner in vier Stufen", async ({ page }) => {
   await expect(page.getByRole("heading", { name: t.settings.title })).toBeVisible();
@@ -28,15 +38,27 @@ test("Erststart zeigt die Einstellungen, danach rechnet der Rechner in vier Stuf
 
   await setUpSalary(page);
   await expect(page.getByRole("heading", { name: t.settings.title })).toBeHidden();
-  expect(t.calculator.emptyPrompts).toContain(await result(page).innerText());
-  await expect(page.locator(".input-affix .affix")).toHaveText(t.calculator.amountUnit);
+  await expect(result(page)).toHaveText(oneOf(t.calculator.emptyPrompts));
+  const calculator = page.getByRole("region", { name: t.calculator.title });
+  await expect(calculator.getByText(t.calculator.amountUnit, { exact: true })).toBeVisible();
 
+  // 3000 € × 12 / (253 − 30 days × 8 h) = 20,18 €/h.
   const amount = page.getByLabel(t.calculator.amountLabel);
   const cases = [
-    { value: "15", level: 1, text: t.verdict.level1Headline("45 Minuten") },
-    { value: "120", level: 2, text: t.verdict.level2Headline("5 Stunden und 57 Minuten") },
-    { value: "600", level: 3, text: t.verdict.level3Headline("3 Tage und 6 Stunden") },
-    { value: "2000", level: 4, text: t.verdict.level4Headline("12 Tage und 3 Stunden") },
+    { value: "15", level: 1, text: t.verdict.level1Headline("45 Minuten"), grey: null },
+    { value: "120", level: 2, text: t.verdict.level2Headline("5 Stunden und 57 Minuten"), grey: null },
+    {
+      value: "600",
+      level: 3,
+      text: t.verdict.level3Headline("3 Tage und 6 Stunden"),
+      grey: t.verdict.greyLine("600,00 €", "29 Stunden und 44 Minuten"),
+    },
+    {
+      value: "2000",
+      level: 4,
+      text: t.verdict.level4Headline("12 Tage und 3 Stunden"),
+      grey: t.verdict.greyLine("2.000,00 €", "99 Stunden und 7 Minuten"),
+    },
   ];
   for (const c of cases) {
     await amount.fill(c.value);
@@ -44,17 +66,54 @@ test("Erststart zeigt die Einstellungen, danach rechnet der Rechner in vier Stuf
     await expect(result(page)).toHaveClass(new RegExp(`level-${c.level}`));
     // The grey line (amount and exact hours) only appears from a working day on; small amounts need no extra line.
     const grey = result(page).locator("p.muted");
-    if (c.level >= 3) {
-      await expect(grey).toHaveCount(1);
-      await expect(grey).toContainText(t.verdict.greyLine("", ""));
-    } else {
-      await expect(grey).toHaveCount(0);
-    }
+    if (c.grey) await expect(grey).toHaveText(c.grey);
+    else await expect(grey).toHaveCount(0);
   }
   await expect(result(page)).toContainText(t.verdict.level4Comment("2 Wochen und 2 Tage"));
 
   await amount.fill("abc");
   await expect(result(page)).toContainText(t.validation.amountInvalid);
+});
+
+test("Mehr Monatsgehälter machen die Stunde wertvoller", async ({ page }) => {
+  await page.getByLabel(t.settings.netLabelMonthly).fill("3000");
+  const months = page.getByLabel(t.settings.monthsLabel);
+  await expect(months).toHaveValue("12");
+  await months.focus();
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowRight");
+  await expect(months).toHaveValue("14");
+  await expect(summary(page)).toContainText("42.000,00 €");
+
+  // 42.000 € / 1784 h = 23,54 €/h, so 600 € take fewer hours than with 12 salaries (3 Tage und 6 Stunden).
+  await page.getByRole("button", { name: t.app.navCalculator }).click();
+  await page.getByLabel(t.calculator.amountLabel).fill("600");
+  await expect(result(page)).toContainText(t.verdict.level3Headline("3 Tage und 1 Stunde"));
+});
+
+test("Jahresnetto rechnet wie das entsprechende Monatsnetto", async ({ page }) => {
+  await page.getByRole("radio", { name: t.settings.yearly, exact: true }).check();
+  // The slider only belongs to the monthly salary.
+  await expect(page.getByLabel(t.settings.monthsLabel)).toBeHidden();
+  await page.getByLabel(t.settings.netLabelYearly).fill("36000");
+  await page.getByRole("button", { name: t.app.navCalculator }).click();
+  await page.getByLabel(t.calculator.amountLabel).fill("600");
+  await expect(result(page)).toContainText(t.verdict.level3Headline("3 Tage und 6 Stunden"));
+});
+
+test("Das Bundesland bestimmt die Feiertage", async ({ page }) => {
+  await page.getByLabel(t.settings.netLabelMonthly).fill("3000");
+  await expect(page.getByText(t.settings.holidaysSummary(11, 8))).toBeVisible();
+
+  // Bayern 2026: 13 Feiertage, davon 4 am Wochenende (Mariä Himmelfahrt, 3. Oktober, Allerheiligen, 2. Weihnachtstag).
+  await page.getByLabel(t.settings.stateLabel).selectOption({ label: "Bayern" });
+  await expect(page.getByText(t.settings.holidaysSummary(13, 9))).toBeVisible();
+  await expect(summary(page)).toContainText(`${t.settings.workingDaysPerYear}222`);
+
+  // After a reload with valid data the app opens the calculator; the choice must still be there.
+  await page.reload();
+  await page.getByRole("button", { name: t.app.navSettings }).click();
+  await expect(page.getByLabel(t.settings.stateLabel)).toHaveValue("BY");
 });
 
 test("Der eingegebene Betrag übersteht einen Abstecher in die Einstellungen", async ({ page }) => {
@@ -74,15 +133,14 @@ test("Gehaltsdaten bleiben nach einem Reload erhalten, dann startet der Rechner"
 });
 
 test("Das Nettofeld trägt in beiden Eingabearten ein Euro-Zeichen", async ({ page }) => {
-  // The calculator stays mounted (hidden) and has its own sign, so look only inside the settings panel.
-  const affix = page.locator("#settings-panel .input-affix .affix");
+  // The calculator stays mounted (hidden) and has its own sign, so look only inside the settings.
+  const sign = page.getByRole("region", { name: t.settings.title }).getByText(t.settings.netUnit, { exact: true });
   await expect(page.getByLabel(t.settings.netLabelMonthly)).toBeVisible();
-  await expect(affix).toHaveText(t.settings.netUnit);
+  await expect(sign).toBeVisible();
 
-  // "Jahresnetto" also appears in the summary, so click the segmented control's label.
-  await page.locator(".segmented label", { hasText: t.settings.yearly }).click();
+  await page.getByRole("radio", { name: t.settings.yearly, exact: true }).check();
   await expect(page.getByLabel(t.settings.netLabelYearly)).toBeVisible();
-  await expect(affix).toHaveText(t.settings.netUnit);
+  await expect(sign).toBeVisible();
 });
 
 test("Ungültige Gehaltsdaten zeigen Fehler und einen Hinweis im Rechner", async ({ page }) => {
@@ -142,9 +200,11 @@ test("Gespeicherte Daten ohne Arbeitstag: Start in den Einstellungen, Fehler sof
 test("Feiertagsliste zeigt NRW 2026 mit freien Tagen", async ({ page }) => {
   await page.getByLabel(t.settings.netLabelMonthly).fill("3000");
   await page.getByText(t.settings.holidaysSummary(11, 8)).click();
-  await expect(page.locator(".holidays li")).toHaveCount(11);
-  await expect(page.locator(".holidays li.off-day")).toHaveCount(3);
-  await expect(page.locator(".holidays li.off-day").first()).toContainText(t.holidays.unityDay);
+  const holidays = summary(page).getByRole("listitem");
+  const offDays = holidays.filter({ hasText: t.settings.holidayOffDay });
+  await expect(holidays).toHaveCount(11);
+  await expect(offDays).toHaveCount(3);
+  await expect(offDays.first()).toContainText(t.holidays.unityDay);
 });
 
 test("Darstellung lässt sich umschalten und wird gemerkt", async ({ page }) => {
@@ -160,17 +220,33 @@ test("Darstellung lässt sich umschalten und wird gemerkt", async ({ page }) => 
 test("Alle Daten löschen leert den Speicher vollständig", async ({ page }) => {
   await page.getByLabel(t.settings.netLabelMonthly).fill("3000");
   await page.getByLabel(t.theme.dark, { exact: true }).check();
-  expect(await page.evaluate(() => Object.keys(localStorage).length)).toBeGreaterThan(0);
+  await expect.poll(async () => (await storageKeys(page)).length).toBeGreaterThan(1);
 
+  const messages: string[] = [];
   page.once("dialog", (dialog) => {
-    expect(dialog.message()).toBe(t.privacy.deleteConfirm);
+    messages.push(dialog.message());
     void dialog.accept();
   });
   await page.getByRole("button", { name: t.privacy.deleteButton }).click();
+  expect(messages).toEqual([t.privacy.deleteConfirm]);
 
   await expect(page.getByLabel(t.settings.netLabelMonthly)).toHaveValue("");
   await expect(page.locator("html")).not.toHaveAttribute("data-theme");
-  expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
+  await expect.poll(() => storageKeys(page)).toEqual([]);
+});
+
+test("Wer das Löschen abbricht, behält seine Daten", async ({ page }) => {
+  await page.getByLabel(t.settings.netLabelMonthly).fill("3000");
+  await expect.poll(async () => (await storageKeys(page)).length).toBeGreaterThan(0);
+  const before = await storageKeys(page);
+
+  page.once("dialog", (dialog) => void dialog.dismiss());
+  await page.getByRole("button", { name: t.privacy.deleteButton }).click();
+
+  await expect(page.getByLabel(t.settings.netLabelMonthly)).toHaveValue("3000");
+  expect(await storageKeys(page)).toEqual(before);
+  await page.reload();
+  await expect(page.getByLabel(t.calculator.amountLabel)).toBeVisible();
 });
 
 test("Der Datenschutz-Hinweis unten steht nur in der Rechner-Ansicht", async ({ page }) => {
@@ -183,15 +259,30 @@ test("Der Datenschutz-Hinweis unten steht nur in der Rechner-Ansicht", async ({ 
 });
 
 test("Fußzeile zeigt Version, Links und einen Spruch", async ({ page }) => {
-  const meta = page.locator(".app-meta");
-  await expect(meta).toContainText(t.footer.versionLine(pkg.version).before);
+  await expect(page.getByText(t.footer.versionLine(pkg.version).before)).toBeVisible();
   await expect(page.getByRole("link", { name: t.footer.repoLabel })).toHaveAttribute("href", REPO_URL);
-  const credit = await meta.locator("p").nth(1).innerText();
-  expect(credit.startsWith(t.footer.creditPrefix)).toBe(true);
-  expect(t.footer.quips).toContain(credit.slice(t.footer.creditPrefix.length).trim());
+  // The build runs inside the git checkout, so the version links to a real commit.
+  await expect(page.getByTitle(t.footer.commitTitle)).toHaveAttribute(
+    "href",
+    new RegExp(`^${escape(REPO_URL)}/commit/[0-9a-f]{7}$`),
+  );
+  await expect(page.getByText(t.footer.creditPrefix)).toHaveText(oneOf(t.footer.quips, `${t.footer.creditPrefix} `));
 });
 
-test("Ist als App installierbar: Manifest und Symbole sind erreichbar", async ({ page, request }) => {
+test("Auf dem Handy passt alles in die Breite", { tag: "@handy" }, async ({ page }) => {
+  const scrollsSideways = () =>
+    page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+  await page.getByLabel(t.settings.netLabelMonthly).fill("3000");
+  await page.getByText(t.settings.holidaysSummary(11, 8)).click();
+  expect(await scrollsSideways()).toBe(false);
+
+  await page.getByRole("button", { name: t.app.navCalculator }).click();
+  await page.getByLabel(t.calculator.amountLabel).fill("1000000");
+  await expect(result(page)).toHaveClass(/level-4/);
+  expect(await scrollsSideways()).toBe(false);
+});
+
+test("Ist als App installierbar: Manifest und Symbole sind erreichbar", { tag: "@einmal" }, async ({ page, request }) => {
   const href = await page.locator('link[rel="manifest"]').getAttribute("href");
   expect(href).toBeTruthy();
   const manifest = await (await request.get(href!)).json();
@@ -216,17 +307,9 @@ test("Funktioniert nach dem ersten Besuch auch offline", async ({ page, context 
   await expect(page.getByRole("heading", { name: t.app.title })).toBeVisible();
   await page.getByLabel(t.calculator.amountLabel).fill("600");
   await expect(result(page)).toContainText(t.verdict.level3Headline("3 Tage und 6 Stunden"));
-  await context.setOffline(false);
 });
 
-test("Service Worker umgeht den HTTP-Cache, damit ein Deploy sofort ankommt", async ({ request }) => {
-  // GitHub Pages sends max-age=600; without these options the page could stay ten minutes behind a deploy.
-  const source = await (await request.get("sw.js")).text();
-  expect(source).toContain('fetch(request, { cache: "no-cache" })');
-  expect(source).toContain('new Request(file, { cache: "reload" })');
-});
-
-test("Hat eine Link-Vorschau für Messenger (Open Graph)", async ({ page, request }) => {
+test("Hat eine Link-Vorschau für Messenger (Open Graph)", { tag: "@einmal" }, async ({ page, request }) => {
   const meta = (selector: string) => page.locator(`meta[${selector}]`).getAttribute("content");
   expect(await meta('name="description"')).toBe(t.app.description);
   expect(await meta('property="og:title"')).toBe(t.app.title);

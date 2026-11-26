@@ -17,8 +17,9 @@ export default defineConfig({
     launchOptions: { executablePath },
   },
   projects: [
-    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
-    { name: "handy", use: { ...devices["Pixel 7"] } },
+    // @handy: only meaningful on a phone; @einmal: independent of the screen (build files, metadata).
+    { name: "desktop", use: { ...devices["Desktop Chrome"] }, grepInvert: /@handy/ },
+    { name: "handy", use: { ...devices["Pixel 7"] }, grepInvert: /@einmal/ },
   ],
   webServer: {
     command: `npm run build && npm run preview -- --port ${PORT} --strictPort`,
