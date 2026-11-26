@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { fakeStore } from "./fakeStore";
-import { clearAll, KEYS, loadJson, removeKey, saveJson } from "./storage";
+import { clearAll, loadJson, removeKey, saveJson } from "./storage";
+
+const KEYS = { settings: "iiwi:settings", theme: "iiwi:theme" };
 
 describe("storage", () => {
   it("speichert und lädt JSON", () => {

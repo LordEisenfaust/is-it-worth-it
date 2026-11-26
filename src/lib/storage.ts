@@ -1,10 +1,5 @@
 export const PREFIX = "iiwi:";
 
-export const KEYS = {
-  settings: `${PREFIX}settings`,
-  theme: `${PREFIX}theme`,
-} as const;
-
 /** The subset of the Web Storage API used here, so tests can pass an in-memory fake. */
 export type KeyValueStore = Pick<Storage, "getItem" | "setItem" | "removeItem" | "key" | "length">;
 

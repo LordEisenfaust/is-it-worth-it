@@ -21,8 +21,24 @@ describe("loadPreferences", () => {
     expect(loadPreferences(store)).toEqual({ draft: defaultDraft, theme: "system" });
   });
 
+  it("ersetzt nur unbrauchbare Felder durch Standardwerte und behält die übrigen", () => {
+    const stored = { ...own, workdays: [9], state: "XX" };
+    const store = fakeStore({ "iiwi:settings": JSON.stringify(stored) });
+    expect(loadPreferences(store).draft).toEqual({ ...own, workdays: defaultDraft.workdays, state: defaultDraft.state });
+  });
+
   it("liefert ohne verfügbaren Speicher die Standardwerte", () => {
     expect(loadPreferences(null)).toEqual({ draft: defaultDraft, theme: "system" });
+  });
+
+  it("übersteht einen Speicher, der bei jedem Zugriff Fehler wirft (blockierter Speicher)", () => {
+    const fail = () => {
+      throw new Error("SecurityError");
+    };
+    const blocked = { ...fakeStore(), getItem: fail, setItem: fail, removeItem: fail, key: fail };
+    expect(loadPreferences(blocked)).toEqual({ draft: defaultDraft, theme: "system" });
+    expect(() => savePreferences({ draft: own, theme: "dark" }, blocked)).not.toThrow();
+    expect(() => resetPreferences(blocked)).not.toThrow();
   });
 });
 
