@@ -1,5 +1,6 @@
 import { t } from "../i18n";
-import { isStateCode, type StateCode } from "./holidays";
+import { countWeekdaysInYear } from "./dates";
+import { getHolidays, isStateCode, type Holiday, type StateCode } from "./holidays";
 import { parseNumber } from "./parse";
 
 export type IncomeMode = "yearly" | "monthly";
@@ -42,16 +43,16 @@ export const defaultDraft: SettingsDraft = {
   state: "NW",
 };
 
-export interface ValidationResult {
+interface ValidationResult {
   settings: Settings | null;
   errors: Partial<Record<SettingsField, string>>;
 }
 
-export function annualNet(settings: Pick<Settings, "mode" | "net" | "monthsPerYear">): number {
+function annualNet(settings: Pick<Settings, "mode" | "net" | "monthsPerYear">): number {
   return settings.mode === "monthly" ? settings.net * settings.monthsPerYear : settings.net;
 }
 
-export function validateDraft(draft: SettingsDraft): ValidationResult {
+function validateDraft(draft: SettingsDraft): ValidationResult {
   const errors: ValidationResult["errors"] = {};
 
   const net = parseNumber(draft.net);
@@ -97,6 +98,62 @@ export function validateDraft(draft: SettingsDraft): ValidationResult {
       state: draft.state,
     },
     errors,
+  };
+}
+
+export interface WageInfo {
+  year: number;
+  annualNet: number;
+  /** Weekdays in the year on chosen workdays, minus holidays on those days, minus vacation. */
+  workingDaysPerYear: number;
+  hoursPerDay: number;
+  /** Number of chosen workdays per week (for the "weeks" wording). */
+  workdaysPerWeek: number;
+  hourlyWage: number;
+  /** Holidays on a chosen workday; these reduce the working days. */
+  holidaysOnWorkdays: Holiday[];
+  /** Every statutory holiday of the state in the year, flagged by whether it falls on a chosen workday. */
+  allHolidays: (Holiday & { onWorkday: boolean })[];
+}
+
+/** The evaluated Gehaltsdaten: either the Netto-Stundenlohn with its summary, or errors per field. */
+export type SettingsOutcome =
+  | { ok: true; info: WageInfo }
+  | { ok: false; errors: Partial<Record<SettingsField, string>> };
+
+/** Validates the form's draft and, if usable, computes the Netto-Stundenlohn for `year`. */
+export function evaluateSettings(draft: SettingsDraft, year: number): SettingsOutcome {
+  const { settings, errors } = validateDraft(draft);
+  if (!settings) return { ok: false, errors };
+  const info = computeWage(settings, year);
+  // The only way usable fields can still fail: vacation and holidays leave no working day in the year.
+  if (!info) return { ok: false, errors: { vacationDays: t.validation.noWorkingDaysLeft } };
+  return { ok: true, info };
+}
+
+/** Null when vacation and holidays leave no working day in the year. */
+function computeWage(settings: Settings, year: number): WageInfo | null {
+  const allHolidays = getHolidays(year, settings.state).map((h) => ({
+    ...h,
+    onWorkday: settings.workdays.includes(h.date.getUTCDay()),
+  }));
+  const holidaysOnWorkdays: Holiday[] = allHolidays.filter((h) => h.onWorkday).map(({ name, date }) => ({ name, date }));
+  const workingDaysPerYear =
+    countWeekdaysInYear(year, settings.workdays) - holidaysOnWorkdays.length - settings.vacationDays;
+  if (workingDaysPerYear <= 0) return null;
+
+  // Validated settings guarantee net > 0, weeklyHours > 0 and at least one workday, so this divides by > 0.
+  const hoursPerDay = settings.weeklyHours / settings.workdays.length;
+  const net = annualNet(settings);
+  return {
+    year,
+    annualNet: net,
+    workingDaysPerYear,
+    hoursPerDay,
+    workdaysPerWeek: settings.workdays.length,
+    hourlyWage: net / (workingDaysPerYear * hoursPerDay),
+    holidaysOnWorkdays,
+    allHolidays,
   };
 }
 

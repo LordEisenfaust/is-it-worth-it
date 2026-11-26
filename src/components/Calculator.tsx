@@ -1,32 +1,30 @@
 import { useState } from "react";
-import { hoursForAmount, type WageResult } from "../lib/calc";
+import { hoursForAmount } from "../lib/calc";
 import { t } from "../i18n";
 import { formatEuro } from "../lib/format";
 import { parseAmount } from "../lib/parse";
 import { EMPTY_PROMPTS, pickFrom } from "../lib/quips";
+import type { SettingsOutcome } from "../lib/settings";
 import { workTimeVerdict } from "../lib/verdict";
 
 interface Props {
-  /** null while the settings are invalid. */
-  wage: WageResult | null;
-  settingsInvalid: boolean;
-  /** Number of chosen workdays per week (for the "weeks" wording). */
-  workdaysPerWeek: number;
+  /** The evaluated Gehaltsdaten; their details are shown in the settings, not here. */
+  settings: SettingsOutcome;
 }
 
-export function Calculator({ wage, settingsInvalid, workdaysPerWeek }: Props) {
+export function Calculator({ settings }: Props) {
   const [amountText, setAmountText] = useState("");
   // A different nudge on every page load; stays the same while the page is open.
   const [emptyPrompt] = useState(() => pickFrom(EMPTY_PROMPTS));
 
   const amount = parseAmount(amountText);
-  const info = wage?.ok ? wage.info : null;
+  const info = settings.ok ? settings.info : null;
   const hours = amount.ok && info ? hoursForAmount(amount.amount, info.hourlyWage) : NaN;
-  const verdict = info && Number.isFinite(hours) ? workTimeVerdict(hours, info.hoursPerDay, workdaysPerWeek) : null;
+  const verdict =
+    info && Number.isFinite(hours) ? workTimeVerdict(hours, info.hoursPerDay, info.workdaysPerWeek) : null;
 
   let hint: string | null = null;
-  if (settingsInvalid) hint = t.calculator.settingsMissing;
-  else if (wage && !wage.ok) hint = wage.error;
+  if (!settings.ok) hint = t.calculator.settingsMissing;
   else if (amountText.trim() !== "" && !amount.ok) hint = amount.error;
 
   return (

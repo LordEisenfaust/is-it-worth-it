@@ -91,6 +91,44 @@ test("Ungültige Gehaltsdaten zeigen Fehler und einen Hinweis im Rechner", async
   await expect(result(page)).toContainText(t.calculator.settingsMissing);
 });
 
+// NRW 2026, Mo–Fr: 261 Wochentage − 8 Feiertage = 253 Tage, also bleibt mit 253 Urlaubstagen keiner übrig.
+const weekday = (value: number) => t.weekdays.find((d) => d.value === value)!.label;
+
+test("Zu viele Urlaubstage zeigen den Fehler in den Einstellungen und einen Hinweis im Rechner", async ({ page }) => {
+  await page.getByLabel(t.settings.netLabelMonthly).fill("3000");
+  await expect(page.getByRole("heading", { name: t.settings.summaryTitle(2026) })).toBeVisible();
+
+  const vacation = page.getByLabel(t.settings.vacationLabel);
+  await vacation.fill("253");
+  await vacation.blur();
+  await expect(page.getByText(t.validation.noWorkingDaysLeft)).toBeVisible();
+  await expect(vacation).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByRole("heading", { name: t.settings.summaryTitle(2026) })).toBeHidden();
+
+  await page.getByRole("button", { name: t.app.navCalculator }).click();
+  await expect(result(page)).toContainText(t.calculator.settingsMissing);
+});
+
+test("Wer Arbeitstage abwählt, bis keiner übrig bleibt, sieht den Fehler an den Urlaubstagen", async ({ page }) => {
+  await page.getByLabel(t.settings.netLabelMonthly).fill("3000");
+  await page.getByLabel(t.settings.weeklyHoursLabel).fill("8");
+  await page.getByLabel(t.settings.vacationLabel).fill("200");
+  await expect(page.getByText(t.validation.noWorkingDaysLeft)).toBeHidden();
+
+  // Nur noch montags: 52 Montage − Oster- und Pfingstmontag = 50 Arbeitstage, weniger als 200 Urlaubstage.
+  for (const day of [2, 3, 4, 5]) await page.getByLabel(weekday(day), { exact: true }).uncheck();
+  await expect(page.getByText(t.validation.noWorkingDaysLeft)).toBeVisible();
+});
+
+test("Gespeicherte Daten ohne Arbeitstag: Start in den Einstellungen, Fehler sofort sichtbar", async ({ page }) => {
+  await page.getByLabel(t.settings.netLabelMonthly).fill("3000");
+  await page.getByLabel(t.settings.vacationLabel).fill("253");
+  await page.reload();
+
+  await expect(page.getByRole("heading", { name: t.settings.title })).toBeVisible();
+  await expect(page.getByText(t.validation.noWorkingDaysLeft)).toBeVisible();
+});
+
 test("Feiertagsliste zeigt NRW 2026 mit freien Tagen", async ({ page }) => {
   await page.getByLabel(t.settings.netLabelMonthly).fill("3000");
   await page.getByText(t.settings.holidaysSummary(11, 8)).click();

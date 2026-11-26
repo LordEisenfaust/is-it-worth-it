@@ -1,15 +1,15 @@
 import { useState } from "react";
-import type { WageResult } from "../lib/calc";
 import { t } from "../i18n";
 import { formatEuro } from "../lib/format";
 import { STATE_CODES, STATE_NAMES, type StateCode } from "../lib/holidays";
 import {
+  defaultDraft,
   MAX_MONTHS,
   MIN_MONTHS,
   type IncomeMode,
   type SettingsDraft,
   type SettingsField,
-  type ValidationResult,
+  type SettingsOutcome,
 } from "../lib/settings";
 
 const dateFormat = new Intl.DateTimeFormat(t.locale, {
@@ -20,25 +20,39 @@ const dateFormat = new Intl.DateTimeFormat(t.locale, {
 });
 const numberFormat = new Intl.NumberFormat(t.locale, { maximumFractionDigits: 2 });
 
+const ALL_FIELDS: SettingsField[] = ["net", "monthsPerYear", "weeklyHours", "workdays", "vacationDays"];
+
+/** Whether the draft holds the defaults, ignoring the order in which workdays were ticked. */
+function isDefault(draft: SettingsDraft): boolean {
+  const normalize = (d: SettingsDraft) => JSON.stringify({ ...d, workdays: [...d.workdays].sort((a, b) => a - b) });
+  return normalize(draft) === normalize(defaultDraft);
+}
+
 interface Props {
   draft: SettingsDraft;
-  errors: ValidationResult["errors"];
-  wage: WageResult | null;
+  /** The evaluated Gehaltsdaten: field errors, or the summary once they are usable. */
+  outcome: SettingsOutcome;
   onChange: (draft: SettingsDraft) => void;
 }
 
-export function SettingsForm({ draft, errors, wage, onChange }: Props) {
-  const [touched, setTouched] = useState<Set<SettingsField>>(new Set());
-  const touch = (field: SettingsField) => setTouched((t) => new Set(t).add(field));
+export function SettingsForm({ draft, outcome, onChange }: Props) {
+  // Someone coming back with their own data sees its errors at once; a first start stays quiet until blur.
+  const [touched, setTouched] = useState<Set<SettingsField>>(() =>
+    isDefault(draft) ? new Set() : new Set(ALL_FIELDS),
+  );
+  const touch = (...fields: SettingsField[]) =>
+    setTouched((current) => new Set([...current, ...fields]));
+  const errors = outcome.ok ? {} : outcome.errors;
   const shown = (field: SettingsField) => (touched.has(field) ? errors[field] : undefined);
   const set = <K extends keyof SettingsDraft>(key: K, value: SettingsDraft[K]) =>
     onChange({ ...draft, [key]: value });
 
   const netLabel = draft.mode === "monthly" ? t.settings.netLabelMonthly : t.settings.netLabelYearly;
-  const info = wage?.ok ? wage.info : null;
+  const info = outcome.ok ? outcome.info : null;
 
   function toggleDay(day: number) {
-    touch("workdays");
+    // Fewer workdays can leave no working day after vacation; that error shows at the vacation field.
+    touch("workdays", "vacationDays");
     set("workdays", draft.workdays.includes(day) ? draft.workdays.filter((d) => d !== day) : [...draft.workdays, day]);
   }
 
@@ -162,7 +176,15 @@ export function SettingsForm({ draft, errors, wage, onChange }: Props) {
 
       <div className="field">
         <label htmlFor="state">{t.settings.stateLabel}</label>
-        <select id="state" value={draft.state} onChange={(e) => set("state", e.target.value as StateCode)}>
+        <select
+          id="state"
+          value={draft.state}
+          onChange={(e) => {
+            // Other holidays can leave no working day after vacation; that error shows at the vacation field.
+            touch("vacationDays");
+            set("state", e.target.value as StateCode);
+          }}
+        >
           {STATE_CODES.map((code) => (
             <option key={code} value={code}>
               {STATE_NAMES[code]}

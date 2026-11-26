@@ -127,9 +127,7 @@ export const de = {
     amountInvalid: "Bitte eine gültige, nicht negative Zahl eingeben.",
     amountZero: "Der Betrag muss größer als 0 sein.",
     amountTooLarge: "Der Betrag ist zu groß.",
-    noWorkday: "Es ist kein Arbeitstag gewählt.",
     noWorkingDaysLeft: "Mit diesen Urlaubstagen bleibt kein Arbeitstag im Jahr übrig.",
-    wageNotComputable: "Der Stundenlohn lässt sich mit diesen Angaben nicht berechnen.",
   },
 
   privacy: {

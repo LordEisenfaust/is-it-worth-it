@@ -94,13 +94,3 @@ export function getHolidays(year: number, state: StateCode): Holiday[] {
     .map((rule) => ({ name: t.holidays[rule.id], date: rule.date(year, easter) }))
     .sort((a, b) => a.date.getTime() - b.date.getTime());
 }
-
-/** Holidays that fall on one of the given weekdays (0 = Sunday ... 6 = Saturday). */
-export function getHolidaysOnWorkdays(
-  year: number,
-  state: StateCode,
-  workdays: readonly number[],
-): Holiday[] {
-  const wanted = new Set(workdays);
-  return getHolidays(year, state).filter((h) => wanted.has(h.date.getUTCDay()));
-}
