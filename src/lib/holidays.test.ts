@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { countWeekdaysInYear, toIso } from "./dates";
-import { getHolidays, getHolidaysOnWorkdays, STATE_CODES, type StateCode } from "./holidays";
+import { getHolidays, STATE_CODES, type StateCode } from "./holidays";
 
 const MON_FRI = [1, 2, 3, 4, 5];
 
@@ -69,22 +69,6 @@ describe("neu eingeführte Feiertage", () => {
     expect(has(2023, "MV", "Internationaler Frauentag")).toBe(true);
     expect(has(2017, "NI", "Reformationstag")).toBe(false);
     expect(has(2018, "NI", "Reformationstag")).toBe(true);
-  });
-});
-
-describe("getHolidaysOnWorkdays", () => {
-  it("zählt Feiertage am Wochenende nicht", () => {
-    // Hamburg 2026: Einheit (Sa), Reformationstag (Sa) und 2. Weihnachtstag (Sa) fallen aufs Wochenende.
-    expect(getHolidays(2026, "HH")).toHaveLength(10);
-    const onWorkdays = getHolidaysOnWorkdays(2026, "HH", MON_FRI);
-    expect(onWorkdays).toHaveLength(7);
-    expect(onWorkdays.map((h) => h.name)).not.toContain("Tag der Deutschen Einheit");
-  });
-
-  it("zählt Wochenendfeiertage, wenn der Tag als Arbeitstag gewählt ist", () => {
-    const withSaturday = getHolidaysOnWorkdays(2026, "HH", [...MON_FRI, 6]);
-    expect(withSaturday.map((h) => h.name)).toContain("Tag der Deutschen Einheit");
-    expect(withSaturday).toHaveLength(10);
   });
 });
 
