@@ -57,6 +57,11 @@ export function isDefaultDraft(draft: SettingsDraft): boolean {
   return normalize(draft) === normalize(defaultDraft);
 }
 
+/** A fresh copy of the defaults, safe to hand to state without sharing the workdays array. */
+export function freshDraft(): SettingsDraft {
+  return { ...defaultDraft, workdays: [...defaultDraft.workdays] };
+}
+
 function annualNet(settings: Pick<Settings, "mode" | "net" | "monthsPerYear">): number {
   return settings.mode === "monthly" ? settings.net * settings.monthsPerYear : settings.net;
 }
@@ -168,7 +173,7 @@ function computeWage(settings: Settings, year: number): WageInfo | null {
 
 /** Turns untrusted stored data into a well-formed draft, falling back to defaults per field. */
 export function sanitizeDraft(raw: unknown): SettingsDraft {
-  if (typeof raw !== "object" || raw === null) return { ...defaultDraft, workdays: [...defaultDraft.workdays] };
+  if (typeof raw !== "object" || raw === null) return freshDraft();
   const r = raw as Record<string, unknown>;
   const months = r.monthsPerYear;
   return {

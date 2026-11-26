@@ -32,3 +32,11 @@ Was der Ergebniskasten im Rechner zu einem eingegebenen **Betrag** zeigt.
   - `verdict`: das Verdict.
 - **Verdict** mit **Stufe** (`VerdictLevel`) 1–4: 1 = unter einer Stunde, 2 = unter einem Arbeitstag, 3 = unter einer Arbeitswoche, 4 = eine Woche oder mehr. Der Ton steigert sich mit der Stufe („Vorschlag C“ in `docs/ausgabe-varianten.md`). Jedes Verdict hat Überschrift (`headline`) und Kommentar (`comment`).
 - **Graue Zeile** (`greyLine`): ab Stufe 3 der Betrag in Euro und die genaue Arbeitszeit, z. B. „1.599,00 € · ≈ 29 Stunden und 42 Minuten“; bei Stufe 1–2 gibt es keine.
+
+## Gespeicherte Daten
+
+Was die App im Browser behält (`Preferences` in `src/lib/preferences.ts`): den **Entwurf** der Gehaltsdaten und die **Darstellung** (`ThemeChoice`: System, hell, dunkel). Nur in localStorage, Schlüssel mit dem Präfix `iiwi:`.
+
+- **Laden** (`loadPreferences`): gesäubert; unbrauchbare Felder fallen auf Standardwerte zurück, Reste des früheren Verlaufs werden entfernt.
+- **Speichern** (`savePreferences`): Standardwerte werden nicht gespeichert, ihr Schlüssel wird entfernt. „Standard“ ist fachlich gemeint: Der Entwurf zählt auch mit anders sortierten Arbeitstagen als Standard (`isDefaultDraft`).
+- **Alle Daten löschen** (`resetPreferences`): entfernt alle Schlüssel mit `iiwi:`, lässt fremde stehen und liefert frische Standardwerte, die dann nicht zurückgeschrieben werden.

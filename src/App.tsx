@@ -7,28 +7,20 @@ import { ThemeToggle } from "./components/ThemeToggle";
 import { t } from "./i18n";
 import { CREDIT_PREFIX, pickQuip } from "./lib/quips";
 import { commitUrl, REPO_URL } from "./lib/repo";
-import { defaultDraft, evaluateSettings, isDefaultDraft, sanitizeDraft, type SettingsDraft } from "./lib/settings";
-import { clearAll, KEYS, loadJson, PREFIX, saveUnlessDefault } from "./lib/storage";
-import { sanitizeTheme, type ThemeChoice } from "./lib/theme";
+import { loadPreferences, resetPreferences, savePreferences } from "./lib/preferences";
+import { evaluateSettings, isDefaultDraft, type SettingsDraft } from "./lib/settings";
+import type { ThemeChoice } from "./lib/theme";
 
 export function App() {
-  const [draft, setDraft] = useState<SettingsDraft>(() => sanitizeDraft(loadJson(KEYS.settings)));
-  const [theme, setTheme] = useState<ThemeChoice>(() => sanitizeTheme(loadJson(KEYS.theme)));
+  const [initial] = useState(loadPreferences);
+  const [draft, setDraft] = useState<SettingsDraft>(initial.draft);
+  const [theme, setTheme] = useState<ThemeChoice>(initial.theme);
   // A new quip on every page load; nothing is stored.
   const [quip] = useState(pickQuip);
   const commitLink = commitUrl(__APP_COMMIT__);
 
-  // The history feature was removed; drop data left over from earlier versions.
+  useEffect(() => savePreferences({ draft, theme }), [draft, theme]);
   useEffect(() => {
-    try {
-      window.localStorage.removeItem(`${PREFIX}history`);
-    } catch {
-      // Storage unavailable.
-    }
-  }, []);
-  useEffect(() => void saveUnlessDefault(KEYS.settings, draft, defaultDraft), [draft]);
-  useEffect(() => {
-    saveUnlessDefault(KEYS.theme, theme, "system");
     const root = document.documentElement;
     if (theme === "system") root.removeAttribute("data-theme");
     else root.setAttribute("data-theme", theme);
@@ -44,9 +36,9 @@ export function App() {
   const [resetCount, setResetCount] = useState(0);
 
   function deleteEverything() {
-    clearAll();
-    setDraft({ ...defaultDraft, workdays: [...defaultDraft.workdays] });
-    setTheme("system");
+    const fresh = resetPreferences();
+    setDraft(fresh.draft);
+    setTheme(fresh.theme);
     setRevealErrors(false);
     setResetCount((count) => count + 1);
   }
