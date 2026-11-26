@@ -6,9 +6,9 @@ import {
   MIN_MONTHS,
   type IncomeMode,
   type SettingsDraft,
-  type SettingsField,
   type SettingsInput,
   type SettingsOutcome,
+  type VisibleErrors,
 } from "../lib/settings";
 
 interface Props {
@@ -16,7 +16,7 @@ interface Props {
   /** The evaluated Gehaltsdaten; used here for the summary once they are usable. */
   outcome: SettingsOutcome;
   /** The sichtbare Feldfehler (see `visibleErrors`); the form shows them and decides nothing about visibility. */
-  errors: Partial<Record<SettingsField, string>>;
+  errors: VisibleErrors;
   onChange: (draft: SettingsDraft) => void;
   /** Text fields report a touch on blur, workdays and state on change. */
   onTouch: (input: SettingsInput) => void;

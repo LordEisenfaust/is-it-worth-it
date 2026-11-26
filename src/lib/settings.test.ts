@@ -115,7 +115,7 @@ describe("evaluateSettings – Feldfehler", () => {
 
   it("verlangt mindestens eine Stunde pro Arbeitstag", () => {
     // 3 Wochenstunden an Mo–Fr wären 36 Minuten am Tag; dann wären 45 Minuten Arbeit mehr als ein Arbeitstag.
-    // Shown at the weekly hours, but the chosen workdays are just as much its source.
+    // Steht an den Wochenstunden, entsteht aber ebenso aus den gewählten Arbeitstagen.
     const tooFew = { text: t.validation.hoursPerDayTooFew, sources: ["weeklyHours", "workdays"] };
     expect(errors({ ...valid, weeklyHours: "3" }).weeklyHours).toEqual(tooFew);
     expect(errors({ ...valid, weeklyHours: "4,9" }).weeklyHours).toEqual(tooFew);
