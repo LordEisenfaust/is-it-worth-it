@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { t } from "../i18n";
-import { formatEuro } from "../lib/format";
+import { formatEuro, formatHolidayDate, formatHoursPerDay } from "../lib/format";
 import { STATE_CODES, STATE_NAMES, type StateCode } from "../lib/holidays";
 import {
   MAX_MONTHS,
@@ -10,14 +10,6 @@ import {
   type SettingsField,
   type SettingsOutcome,
 } from "../lib/settings";
-
-const dateFormat = new Intl.DateTimeFormat(t.locale, {
-  weekday: "short",
-  day: "2-digit",
-  month: "2-digit",
-  timeZone: "UTC",
-});
-const numberFormat = new Intl.NumberFormat(t.locale, { maximumFractionDigits: 2 });
 
 const ALL_FIELDS: SettingsField[] = ["net", "monthsPerYear", "weeklyHours", "workdays", "vacationDays"];
 
@@ -194,7 +186,7 @@ export function SettingsForm({ draft, outcome, revealErrors, onChange }: Props) 
             <dt>{t.settings.workingDaysPerYear}</dt>
             <dd>{info.workingDaysPerYear}</dd>
             <dt>{t.settings.hoursPerDay}</dt>
-            <dd>{numberFormat.format(info.hoursPerDay)}</dd>
+            <dd>{formatHoursPerDay(info.hoursPerDay)}</dd>
             <dt>{t.settings.hourlyWage}</dt>
             <dd>{formatEuro(info.hourlyWage)}</dd>
           </dl>
@@ -203,7 +195,7 @@ export function SettingsForm({ draft, outcome, revealErrors, onChange }: Props) 
             <ul className="holidays">
               {info.allHolidays.map((h) => (
                 <li key={`${h.name}-${h.date.getTime()}`} className={h.onWorkday ? undefined : "off-day"}>
-                  {dateFormat.format(h.date)} – {h.name}
+                  {t.settings.holidayLine(formatHolidayDate(h.date), h.name)}
                   {!h.onWorkday && <span className="note">{t.settings.holidayOffDay}</span>}
                 </li>
               ))}

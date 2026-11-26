@@ -9,6 +9,21 @@ export function formatEuro(value: number): string {
   return euro.format(value);
 }
 
+/** Holidays are UTC dates, so they are formatted in UTC to stay on the right day in every time zone. */
+const holidayDate = new Intl.DateTimeFormat(t.locale, { weekday: "short", day: "2-digit", month: "2-digit", timeZone: "UTC" });
+
+/** "Sa., 03.10." */
+export function formatHolidayDate(date: Date): string {
+  return holidayDate.format(date);
+}
+
+const hoursPerDay = new Intl.NumberFormat(t.locale, { maximumFractionDigits: 2 });
+
+/** Hours per working day in the settings summary: "8", "7,5", "6,67". */
+export function formatHoursPerDay(hours: number): string {
+  return hoursPerDay.format(hours);
+}
+
 function count(value: number, singular: string, plural: string): string {
   const text = number.format(value);
   return `${text} ${text === "1" ? singular : plural}`;

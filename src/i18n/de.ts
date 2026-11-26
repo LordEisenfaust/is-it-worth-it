@@ -93,6 +93,8 @@ export const de = {
     hoursPerDay: "Stunden pro Arbeitstag",
     hourlyWage: "Netto-Stundenlohn",
     holidaysSummary: (total: number, deducted: number) => `Feiertage (${total}, davon ${deducted} abgezogen)`,
+    /** One line of the holiday list: date and name. */
+    holidayLine: (date: string, name: string) => `${date} – ${name}`,
     holidayOffDay: " (laut Auswahl kein Arbeitstag, nicht abgezogen)",
   },
 

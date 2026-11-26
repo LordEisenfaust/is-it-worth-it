@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatHoursMinutes, formatWeeksDays, splitWorkTime } from "./format";
+import { formatHolidayDate, formatHoursMinutes, formatHoursPerDay, formatWeeksDays, splitWorkTime } from "./format";
 
 describe("splitWorkTime (8 h pro Tag)", () => {
   const text = (hours: number) => splitWorkTime(hours, 8)?.text;
@@ -57,5 +57,20 @@ describe("formatWeeksDays", () => {
     expect(formatWeeksDays(6, 5)).toBe("1 Woche und 1 Tag");
     expect(formatWeeksDays(9.6, 5)).toBe("2 Wochen");
     expect(formatWeeksDays(8, 4)).toBe("2 Wochen");
+  });
+});
+
+describe("formatHolidayDate", () => {
+  it("zeigt Wochentag kurz, Tag und Monat zweistellig, unabhängig von der Zeitzone", () => {
+    expect(formatHolidayDate(new Date(Date.UTC(2026, 9, 3)))).toBe("Sa., 03.10.");
+    expect(formatHolidayDate(new Date(Date.UTC(2026, 0, 1)))).toBe("Do., 01.01.");
+  });
+});
+
+describe("formatHoursPerDay", () => {
+  it("zeigt höchstens zwei Nachkommastellen, ganze Werte ohne", () => {
+    expect(formatHoursPerDay(8)).toBe("8");
+    expect(formatHoursPerDay(7.5)).toBe("7,5");
+    expect(formatHoursPerDay(20 / 3)).toBe("6,67");
   });
 });
