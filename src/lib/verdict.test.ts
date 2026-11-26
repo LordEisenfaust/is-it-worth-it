@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { t } from "../i18n";
-import type { SettingsOutcome } from "./settings";
+import { defaultDraft, evaluateSettings, type SettingsOutcome } from "./settings";
 import { evaluateAmount } from "./verdict";
 
 /**
@@ -80,6 +80,37 @@ describe("evaluateAmount – Verdict", () => {
     expect(verdict("10").headline).toBe("1 Stunde Arbeit.");
   });
 
+  it("Stufe 2: der Kommentar richtet sich nach den Stunden der Überschrift", () => {
+    // 39,99 € = 3,999 h, gezeigt als "4 Stunden" – die Hälfte eines 8-Stunden-Tags.
+    expect(verdict("39,99").headline).toBe("4 Stunden Arbeit.");
+    expect(verdict("39,99").comment).toBe(verdict("40").comment);
+    expect(verdict("40").comment).toBe(t.verdict.level2CommentLarge);
+    expect(verdict("39,90").comment).toBe(t.verdict.level2CommentSmall);
+  });
+
+  it("Grenze Stufe 2/3 liegt bei einem gerundeten Arbeitstag", () => {
+    expect(verdict("79,90")).toMatchObject({ level: 2, headline: "7 Stunden und 59 Minuten Arbeit." });
+    expect(verdict("79,99")).toMatchObject({ level: 3, headline: "1 Tag Schufterei." });
+  });
+
+  it("Grenze Stufe 3/4 liegt bei einer gerundeten Arbeitswoche", () => {
+    expect(verdict("391")).toMatchObject({ level: 3, headline: "4 Tage und 7 Stunden Schufterei." });
+    // 39,6 h = 4 Tage und 7,6 Stunden, gerundet 5 Tage – also schon eine Woche.
+    expect(verdict("396")).toMatchObject({ level: 4, headline: "5 Tage Arbeit. Ernsthaft?" });
+  });
+
+  it("die Stufe sinkt nie, wenn der Betrag steigt", () => {
+    for (const workdaysPerWeek of [3, 4, 5, 6]) {
+      let previous = 0;
+      for (let cents = 1; cents <= 200_000; cents += 7) {
+        const { level } = verdict((cents / 100).toFixed(2).replace(".", ","), workdaysPerWeek);
+        expect(level).toBeGreaterThanOrEqual(previous);
+        previous = level;
+      }
+      expect(previous).toBe(4);
+    }
+  });
+
   it("Stufe 3: ab einem Arbeitstag frech, mit grauer Zeile aus Betrag und genauer Arbeitszeit", () => {
     expect(verdict("297")).toEqual({
       kind: "verdict",
@@ -114,5 +145,34 @@ describe("evaluateAmount – Verdict", () => {
   it("richtet die Wochengrenze nach den gewählten Arbeitstagen", () => {
     expect(verdict("320").level).toBe(3);
     expect(verdict("320", 4).level).toBe(4);
+  });
+});
+
+describe("evaluateAmount mit echten Gehaltsdaten", () => {
+  /** NRW 2026, Mo–Fr, 40 h, 30 Urlaubstage, 2.500 € Monatsnetto × 12: 30.000 € / (223 Tage × 8 h). */
+  const nrw = evaluateSettings({ ...defaultDraft, net: "2.500" }, 2026);
+
+  it("rechnet den Stundenlohn aus den Gehaltsdaten", () => {
+    expect(nrw.ok && nrw.info.hourlyWage).toBeCloseTo(30000 / 1784, 9);
+  });
+
+  it("600 € sind gut vier Arbeitstage", () => {
+    // 600 € / 16,816… €/h = 35,68 h = 2141 Minuten = 4 Tage (1920 Min.) und 221 Minuten ≈ 4 Stunden.
+    expect(evaluateAmount("600", nrw)).toEqual({
+      kind: "verdict",
+      level: 3,
+      headline: "4 Tage und 4 Stunden Schufterei.",
+      comment: t.verdict.level3Comment,
+      greyLine: "600,00 € · ≈ 35 Stunden und 41 Minuten",
+    });
+  });
+
+  it("ein Monatsnetto ist mehrere Arbeitswochen", () => {
+    // 2.500 € = 148,67 h = 18 Tage und 4,67 h ≈ 5 Stunden; 18 Tage = 3 Wochen und 3 Tage.
+    expect(evaluateAmount("2.500", nrw)).toMatchObject({
+      level: 4,
+      headline: "18 Tage und 5 Stunden Arbeit. Ernsthaft?",
+      comment: t.verdict.level4Comment("3 Wochen und 3 Tage"),
+    });
   });
 });

@@ -56,6 +56,13 @@ describe("evaluateSettings – Netto-Stundenlohn", () => {
     expect(info({ ...hamburg, vacationDays: "0" }).workingDaysPerYear).toBe(261 - 7);
   });
 
+  it("zieht einen Tag mit zwei Feiertagen nur einmal ab (1. Mai = Christi Himmelfahrt 2008)", () => {
+    // NRW 2008, Mo–Fr: 262 Wochentage; 10 Feiertage auf Arbeitstagen, davon zwei am Do., 1. Mai.
+    const result = info({ ...valid, vacationDays: "0" }, 2008);
+    expect(result.holidaysOnWorkdays).toHaveLength(10);
+    expect(result.workingDaysPerYear).toBe(262 - 9);
+  });
+
   it("zieht Urlaubstage ab", () => {
     const without = info({ ...hamburg, vacationDays: "0" }).workingDaysPerYear;
     expect(without - info({ ...hamburg, vacationDays: "25" }).workingDaysPerYear).toBe(25);
@@ -90,6 +97,21 @@ describe("evaluateSettings – Feldfehler", () => {
     expect(errors({ ...valid, weeklyHours: "0" }).weeklyHours).toBeDefined();
     expect(errors({ ...valid, weeklyHours: "200" }).weeklyHours).toBeDefined();
     expect(errors({ ...valid, weeklyHours: "100", workdays: [1, 2, 3] }).weeklyHours).toBeDefined();
+    expect(evaluateSettings({ ...valid, weeklyHours: "168", workdays: [0, 1, 2, 3, 4, 5, 6] }, 2026).ok).toBe(true);
+    expect(errors({ ...valid, weeklyHours: "168,5" }).weeklyHours).toBe(t.validation.weeklyHoursTooMany);
+  });
+
+  it("verlangt mindestens eine Stunde pro Arbeitstag", () => {
+    // 3 Wochenstunden an Mo–Fr wären 36 Minuten am Tag; dann wären 45 Minuten Arbeit mehr als ein Arbeitstag.
+    expect(errors({ ...valid, weeklyHours: "3" }).weeklyHours).toBe(t.validation.hoursPerDayTooFew);
+    expect(errors({ ...valid, weeklyHours: "4,9" }).weeklyHours).toBe(t.validation.hoursPerDayTooFew);
+    expect(info({ ...valid, weeklyHours: "5" }).hoursPerDay).toBe(1);
+    expect(info({ ...valid, weeklyHours: "1", workdays: [3] }).hoursPerDay).toBe(1);
+  });
+
+  it("begrenzt das Netto nach oben", () => {
+    expect(evaluateSettings({ ...valid, net: "1.000.000.000" }, 2026).ok).toBe(true);
+    expect(errors({ ...valid, net: "1.000.000.001" }).net).toBe(t.validation.netTooLarge(t.settings.monthly));
   });
 
   it("verlangt mindestens einen Arbeitstag", () => {
@@ -101,6 +123,9 @@ describe("evaluateSettings – Feldfehler", () => {
     expect(errors({ ...valid, vacationDays: "-1" }).vacationDays).toBeDefined();
     expect(errors({ ...valid, vacationDays: "2,5" }).vacationDays).toBeDefined();
     expect(errors({ ...valid, vacationDays: "" }).vacationDays).toBeDefined();
+    // 366 is a valid entry but leaves no working day; 367 is rejected as such.
+    expect(errors({ ...valid, vacationDays: "366" }).vacationDays).toBe(t.validation.noWorkingDaysLeft);
+    expect(errors({ ...valid, vacationDays: "367" }).vacationDays).toBe(t.validation.vacationTooMany);
   });
 
   it("begrenzt die Monatsgehälter auf 12 bis 16", () => {

@@ -119,6 +119,7 @@ export const de = {
     weeklyHoursTooMany: "Eine Woche hat nur 168 Stunden.",
     workdaysMissing: "Bitte mindestens einen Arbeitstag wählen.",
     hoursPerDayTooMany: "Das ergäbe mehr als 24 Stunden pro Arbeitstag – bitte Wochenstunden oder Arbeitstage prüfen.",
+    hoursPerDayTooFew: "Das ergäbe weniger als eine Stunde pro Arbeitstag – bitte Wochenstunden oder Arbeitstage prüfen.",
     vacationMissing: "Bitte Urlaubstage eingeben (0 ist erlaubt).",
     vacationInvalid: "Urlaubstage müssen eine ganze Zahl von mindestens 0 sein.",
     vacationTooMany: "Ein Jahr hat nicht mehr als 366 Tage.",
